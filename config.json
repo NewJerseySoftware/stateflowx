@@ -1,0 +1,11 @@
+{
+  "BROADCAST_EVENTS": {
+    "table": [],
+    "seat": ["getSeats", "addSeat"],
+    "game": []
+  },
+  "SECRET_KEY": "xyz123567HiiiJi",
+  "SETTINGS": {
+    "autoRemoveEmptyTable": true
+  }
+}

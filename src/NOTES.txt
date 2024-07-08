@@ -1,0 +1,51 @@
+*** right now home inits the websocket
+
+# WTF is this?
+# https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/config.json
+
+
+# Cronjob to delete tables/game with no seats
+const mongoose = require('mongoose');
+
+// Import your Mongoose models
+const Table = require('./path/to/table-model');
+const Game = require('./path/to/game-model');
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/your-database-name', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Define the deletion logic
+async function deleteTablesAndGamesWithoutSeats() {
+  try {
+    // Find tables and game documents without seats
+    const tables = await Table.find({
+      $and: [{ players: { $size: 0 } }, { watchers: { $size: 0 } }],
+    }).exec();
+
+    const tableIDs = tables.map((table) => table._id);
+
+    // Find associated game documents
+    const games = await Game.find({ tableID: { $in: tableIDs } }).exec();
+
+    const gameIDs = games.map((game) => game._id);
+
+    // Delete tables and game documents without seats
+    await Table.deleteMany({ _id: { $in: tableIDs } }).exec();
+    await Game.deleteMany({ _id: { $in: gameIDs } }).exec();
+
+    console.log(
+      `Deleted ${tables.length} tables and ${games.length} game documents without seats.`
+    );
+
+    // Disconnect from MongoDB
+    mongoose.disconnect();
+  } catch (error) {
+    console.error('Error deleting tables and games:', error);
+  }
+}
+
+// Run the deletion logic
+deleteTablesAndGamesWithoutSeats();
