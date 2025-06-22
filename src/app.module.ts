@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import EventsGateway from './ws/gateway/events.gateway';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -32,6 +33,7 @@ import { GameProvider } from './blackjack-game/game/game.provider';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     HttpModule,
     GameDBModule,
     TableDBModule,
@@ -65,4 +67,4 @@ import { GameProvider } from './blackjack-game/game/game.provider';
     GameFlow
   ],
 })
-export class AppModule {}
+export class AppModule { }
