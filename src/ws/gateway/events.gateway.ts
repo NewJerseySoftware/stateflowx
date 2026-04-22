@@ -12,25 +12,10 @@ import {
   JSONRPCServerAndClient,
 } from 'json-rpc-2.0';
 import { Server, WebSocket } from 'ws';
-import { UUIDService } from 'src/shared/services/uuid/uuid.service';
 import { applicationInputTypes, isJsonString } from 'src/ws/util/utils';
-import { JsonRpcService } from '../provider/json-rpc/json-rpc.service';
 import { IWebSocket } from '../interface/ws.interface';
-import { Inject } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { TableDocument } from 'src/db/table-db-module/resource/table/table.schema';
-import { TableJsonrpcService } from 'src/db/table-db-module/json-rpc/table-rpc.service';
-import { BjJsonrpcService } from 'src/blackjack-game/json-rpc/bj-jsonrpc.service';
-import { AppConfigService } from 'src/config/config.service';
-import { UserDocument } from 'src/db/user-db-module/resource/user/user.schema';
-import { GameDocument } from 'src/db/game-db-module/resource/game/game.schema';
-import {
-  removeSocketIdFromPlayersWatchersArray,
-  removeSeatMapValue,
-} from './cleanup';
-import { EncryptionService } from 'src/shared/services/encryption/encryption.service';
 import { isObject } from 'class-validator';
-//import { MessageService } from 'src/blackjack-game/message/message';
+import { PingPongJsonrpcService } from 'src/ping-pong/json-rpc/ping-pong.jsonrpc.service';
 
 @WebSocketGateway()
 export default class EventsGateway
@@ -43,134 +28,39 @@ export default class EventsGateway
   serverAndClient: JSONRPCServerAndClient;
   nextClientId: number;
   maxDataLength: number = 1500;
+  pingPongRPC: PingPongJsonrpcService;
 
-  constructor(
-    private tableRPC: TableJsonrpcService,
-    private blackJackRPC: BjJsonrpcService,
-    private jsonRpcService: JsonRpcService,
-    private uuidService: UUIDService,
-    private appConfigService: AppConfigService,
-    @Inject(EncryptionService)
-    private readonly encryptionService: EncryptionService,
-    @Inject('TABLE_MODEL') readonly tableModel: Model<TableDocument>,
-    @Inject('USER_MODEL') readonly userModel: Model<UserDocument>,
-    @Inject('GAME_MODEL') readonly gameModel: Model<GameDocument>,
-  ) {
-    this.nextClientId = 1;
-  }
+  constructor() {}
 
-  handleConnection(@ConnectedSocket() clientWS: IWebSocket, request: any) {
-    //this.ws = ws;
-    this.doSomethingWithTheRequest(request);
-    const newID = this.uuidService.getUniqueV4ID() + '-' + this.nextClientId;
-    clientWS.id = newID;
-    clientWS.roomID = 'lobby'; // default
-    clientWS.seat = '0'; // default
-    clientWS.gameID = ''; // ALWAYS DECRYPTED STORED HERE
-    this.clientsMap.set(newID, clientWS);
-    this.nextClientId++;
-    console.log(`Client connected with ID: ${clientWS.id}`);
+  handleConnection(client: any) {
+    console.log('Client connected');
 
-    clientWS.jsonSC = new JSONRPCServerAndClient(
+    const jsonSC = new JSONRPCServerAndClient(
       new JSONRPCServer(),
       new JSONRPCClient((request) => {
-        const data = JSON.stringify(request);
-        try {
-          clientWS.send(data);
-          return Promise.resolve();
-        } catch (error) {
-          return Promise.reject(error);
-        }
+        client.send(JSON.stringify(request));
       }),
     );
 
-    clientWS.onmessage = (event: any) => {
+    client.jsonSC = jsonSC;
+
+    const pingPongRPC = new PingPongJsonrpcService(jsonSC, client);
+    pingPongRPC.register();
+
+    client.on('message', (msg: any) => {
+      console.log('incoming:', msg.toString());
+
       try {
-        if (this.isValidObject(event, clientWS)) {
-          //check for ping
-          const checkPing = JSON.parse(event.data);
-          if (checkPing.type === 'ping') {
-            clientWS.send(JSON.stringify({ type: 'pong' }));
-          } else {
-            if (isJsonString(event.data, clientWS)) {
-              if (JSON.parse(event.data).id) {
-                if (
-                  this.appConfigService
-                    .getConfig()
-                    .BROADCAST_EVENTS.table.includes(
-                      JSON.parse(event.data).method,
-                    ) ||
-                  this.appConfigService
-                    .getConfig()
-                    .BROADCAST_EVENTS.game.includes(
-                      JSON.parse(event.data).method,
-                    ) ||
-                  this.appConfigService
-                    .getConfig()
-                    .BROADCAST_EVENTS.seat.includes(
-                      JSON.parse(event.data).method,
-                    )
-                ) {
-                  this.responseToALLClients(event.data); // BROADCAST
-                  console.log(event.data);
-                } else {
-                  this.responseToClient(clientWS.jsonSC, event.data);
-                }
-              } else {
-                clientWS.send(
-                  JSON.stringify({
-                    error: { message: 'json-rpc object missing id field' },
-                  }),
-                );
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.log(error.message);
+        const data = JSON.parse(msg.toString());
+        jsonSC.receiveAndSend(data);
+      } catch (err) {
+        console.error('Invalid JSON:', err);
       }
-    };
+    });
+  }
 
-    /* core services */
-    this.jsonRpcService = new JsonRpcService(
-      clientWS.jsonSC,
-      clientWS,
-      this.tableModel,
-      this.userModel,
-      this.gameModel,
-    );
-    this.jsonRpcService.addUserConnection(this.uuidService.getUniqueV4ID());
-
-    /* tables */
-    this.tableRPC = new TableJsonrpcService(
-      clientWS.jsonSC,
-      clientWS,
-      this.server,
-      this.clientsMap,
-      this.tableModel,
-      this.userModel,
-      this.gameModel,
-    );
-    this.tableRPC.addTable();
-    this.tableRPC.getTable();
-    this.tableRPC.joinTable();
-    this.tableRPC.paginateTables();
-    this.tableRPC.leaveTable();
-    this.tableRPC.getPlayers();
-    this.tableRPC.getStatus();
-
-    /* blackjack game */
-    this.blackJackRPC = new BjJsonrpcService(
-      clientWS.jsonSC,
-      clientWS,
-      this.tableModel,
-      this.userModel,
-      this.gameModel,
-    );
-    this.blackJackRPC.addTest();
-    this.blackJackRPC.getSeats();
-    this.blackJackRPC.addSeat();
-    this.blackJackRPC.getGameActiveStatus();
+  handleMessage(client: any, payload: any) {
+    client.jsonSC.receiveAndSend(payload);
   }
 
   handleDisconnect(@ConnectedSocket() clientWS: IWebSocket) {
@@ -178,21 +68,22 @@ export default class EventsGateway
       //console.log('clientWS.roomID !== lobby');
       //cleanup db eligable for cleanup set when joins table
       if (clientWS.eligableForDBCleanup) {
-        this.encryptionService
-          .decryptStringAsync(clientWS.roomID)
-          .then(async (roomId) => {
-            await removeSocketIdFromPlayersWatchersArray(
-              clientWS.id,
-              roomId,
-              this.tableModel,
-            );
-          });
-
-        this.encryptionService
-          .decryptStringAsync(clientWS.gameID)
-          .then(async (gameID) => {
-            await removeSeatMapValue(gameID, clientWS.id, this.gameModel);
-          });
+        // this.encryptionService
+        //   .decryptStringAsync(clientWS.roomID)
+        //   .then(async (roomId) => {
+        //     // todo: shouldn't be here...
+        //     // await removeSocketIdFromPlayersWatchersArray(
+        //     //   clientWS.id,
+        //     //   roomId,
+        //     //   this.tableModel,
+        //     // );
+        //   });
+        // todo: shouldn't be here... should be in game provider or game flow
+        // this.encryptionService
+        //   .decryptStringAsync(clientWS.gameID)
+        //   .then(async (gameID) => {
+        //     await removeSeatMapValue(gameID, clientWS.id, this.gameModel);
+        //   });
       }
     }
 
@@ -227,7 +118,6 @@ export default class EventsGateway
     });
   }
 
-  // my goal is extra paranoid :)
   isValidObject(value: any, client: any): boolean {
     if (applicationInputTypes(value.data)) {
       if (typeof value.data === 'string') {
@@ -252,33 +142,3 @@ export default class EventsGateway
     }
   }
 }
-
-// Connected (press CTRL+C to quit)
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "id":1}
-// < {"jsonrpc":"2.0","id":1,"result":{"true":3}}
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "ids":1}
-// < {"error":{"message":"id is missing from json-rpc"}}
-// Disconnected (code: 1006, reason: "")
-// burtsnyder@Burts-Mac-mini a-ws-test-project % wscat -c ws://localhost:3000
-// Connected (press CTRL+C to quit)
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "ids":1}
-// < {"error":{"message":"id is missing from json-rpc call"}}
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "id":1}
-// < {"jsonrpc":"2.0","id":1,"result":{"true":3}}
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "id":}
-// < {"error":{"message":"Unexpected token } in JSON at position 89"}}
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "id"}
-// < {"error":{"message":"Unexpected token } in JSON at position 88"}}
-// Disconnected (code: 1006, reason: "")
-// burtsnyder@Burts-Mac-mini a-ws-test-project % wscat -c ws://localhost:3000
-// Connected (press CTRL+C to quit)
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "ids":1}
-// < {"error":{"message":"json-rpc object missing id field"}}
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "id":1}
-// < {"jsonrpc":"2.0","id":1,"result":{"true":3}}
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "id":""}
-// < {"error":{"message":"json-rpc object missing id field"}}
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "id":.}
-// < {"error":{"message":"Unexpected token . in JSON at position 89"}}
-// > {"jsonrpc":"2.0", "method":"add", "params":[{"data": {"x":"1","y":"2"}}, "latest"], "id":"puto"}
-// < {"jsonrpc":"2.0","id":"puto","result":{"true":3}}

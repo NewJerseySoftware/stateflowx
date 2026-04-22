@@ -100,7 +100,7 @@ export class JsonRpcService extends CoreServices {
       } catch (e) {
         result = {
           success: false,
-          data: e.message,
+          data: e instanceof Error ? e.message : String(e),
         };
       }
       return result;

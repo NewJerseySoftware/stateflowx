@@ -16,55 +16,58 @@ import { TableService } from './db/table-db-module/resource/table/table.service'
 import { TableController } from './db/table-db-module/resource/table/table.controller';
 import { TableJsonrpcService } from './db/table-db-module/json-rpc/table-rpc.service';
 import { BjJsonrpcService } from './blackjack-game/json-rpc/bj-jsonrpc.service';
-import { TableDBModule } from './db/table-db-module/tableDB.module';
 import { AppConfigService } from './config/config.service';
 import { EncryptionService } from './shared/services/encryption/encryption.service';
-import { UserDBModule } from './db/user-db-module/userDB.module';
 import { UserController } from './db/user-db-module/resource/user/user.controller';
 import { UserService } from './db/user-db-module/resource/user/user.service';
-import { GameDBModule } from './db/game-db-module/gameDB.module';
 import { GameDBController } from './db/game-db-module/resource/game/gameDB.controller';
 import { GameDBService } from './db/game-db-module/resource/game/gameDB.service';
 import { MessageService } from './blackjack-game/message/message';
 import { GameFlow } from './blackjack-game/game-flow/game-flow';
 import { GameProvider } from './blackjack-game/game/game.provider';
 
-// https://docs.nestjs.com/techniques/mongodb
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    HttpModule,
-    GameDBModule,
-    TableDBModule,
-    UserDBModule,
-  ],
-  exports: [],
-  controllers: [AppController],
-  providers: [
-    AppService,
-    EventsGateway,
-    JsonRpcService,
-    JSONRPCServerAndClient,
-    UUIDService,
-    BjJsonrpcService,
-    ConnectionService,
-    CoreServices,
-    HttpProvider,
-    AwsConfigService,
-    ConfigService,
-    AppConfigService,
-    TableController,
-    TableService,
-    UserController,
-    UserService,
-    GameDBController,
-    GameDBService,
-    TableJsonrpcService,
-    EncryptionService,
-    MessageService,
-    GameProvider,
-    GameFlow
-  ],
+  imports: [],
+  controllers: [],
+  providers: [EventsGateway],
 })
-export class AppModule { }
+export class AppModule {}
+
+// @Module({
+//   imports: [
+//     ConfigModule.forRoot({ isGlobal: true }),
+//     HttpModule,
+//     // GameDBModule,
+//     // TableDBModule,
+//     // UserDBModule,
+//   ],
+//   exports: [],
+//   controllers: [AppController],
+//   providers: [
+//     AppService,
+//     EventsGateway,
+//     JsonRpcService,
+//     JSONRPCServerAndClient,
+//     UUIDService,
+//     BjJsonrpcService,
+//     ConnectionService,
+//     CoreServices,
+//     HttpProvider,
+//     AwsConfigService,
+//     ConfigService,
+//     AppConfigService,
+//     TableController,
+//     TableService,
+//     UserController,
+//     UserService,
+//     GameDBController,
+//     GameDBService,
+//     TableJsonrpcService,
+//     EncryptionService,
+//     MessageService,
+//     GameProvider,
+//     GameFlow
+//   ],
+// })
+// export class AppModule { }
