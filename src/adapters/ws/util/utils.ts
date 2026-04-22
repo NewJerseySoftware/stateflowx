@@ -9,8 +9,8 @@ export function isJsonString(event: string, ws: IWebSocket): boolean {
   try {
     JSON.parse(event.toString());
   } catch (e) {
-    ws.send(JSON.stringify({ error: { message: e.message } }));
-    return;
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    ws.send(JSON.stringify({ error: { message } }));
   }
   return true;
 }
@@ -28,7 +28,8 @@ export function isValidJSONRPCRequest(obj: any) {
     try {
       check = JSON.parse(obj);
     } catch (err) {
-      console.log('input error: ', err.message);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      console.log('input error: ', message);
       return false;
     }
   } else if (typeof obj === 'object') {

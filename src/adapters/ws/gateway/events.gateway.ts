@@ -13,9 +13,9 @@ import {
 } from 'json-rpc-2.0';
 import { Server, WebSocket } from 'ws';
 import { applicationInputTypes, isJsonString } from 'src/adapters/ws/util/utils';
+import { IWebSocket } from '../interface/ws.interface';
 import { isObject } from 'class-validator';
 import { PingPongJsonrpcService } from 'src/examples/ping-pong/json-rpc/ping-pong.jsonrpc.service';
-import { IWebSocket } from 'src/adapters/ws/interface/ws.interface';
 
 @WebSocketGateway()
 export default class EventsGateway

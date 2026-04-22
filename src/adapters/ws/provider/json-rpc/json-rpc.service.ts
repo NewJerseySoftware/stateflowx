@@ -2,18 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { JSONRPCServerAndClient } from 'json-rpc-2.0';
 import { parseJsonRPCData } from 'src/adapters/ws/util/utils';
 import { UUIDService } from 'src/shared/services/uuid/uuid.service';
+import { ConnectionService } from '../connection/connection.service';
+
 import { IWebSocket } from 'src/adapters/ws/interface/ws.interface';
 import { HttpProvider } from 'src/shared/services/http/http-provider';
 import { TableController } from 'src/db/table-db-module/resource/table/table.controller';
 import { TableService } from 'src/db/table-db-module/resource/table/table.service';
-import { ConnectionService } from 'src/adapters/ws/provider/connection/connection.service';
+
 import { EncryptionService } from 'src/shared/services/encryption/encryption.service';
 import { AppConfigService } from 'src/config/config.service';
 import { UserController } from 'src/db/user-db-module/resource/user/user.controller';
 import { UserService } from 'src/db/user-db-module/resource/user/user.service';
 import { GameDBController } from 'src/db/game-db-module/resource/game/gameDB.controller';
 import { GameDBService } from 'src/db/game-db-module/resource/game/gameDB.service';
-import { IResult } from 'src/adapters/ws/core/result.interface';
+import { IResult } from '../../core/result.interface';
 
 @Injectable()
 export class JsonRpcService {

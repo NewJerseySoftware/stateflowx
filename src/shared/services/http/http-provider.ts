@@ -21,7 +21,12 @@ export class HttpProvider {
       const response = await axios.post(url, payload);
       return response.data;
     } catch (error) {
-      console.error('Error verifying reCAPTCHA Enterprise:', error.response?.data || error.message);
+      const err = error as any;
+
+console.error(
+  'Error verifying reCAPTCHA Enterprise:',
+  err.response?.data || err.message || 'Unknown error'
+);
       throw new Error('reCAPTCHA verification failed');
     }
   }

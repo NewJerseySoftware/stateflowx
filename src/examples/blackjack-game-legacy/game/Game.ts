@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { GameDBService } from 'src/db/game-db-module/resource/game/gameDB.service';
 import { TableService } from 'src/db/table-db-module/resource/table/table.service';
-import { IWebSocket } from 'src/ws/interface/ws.interface';
+import { IWebSocket } from 'src/adapters/ws/interface/ws.interface';
 import { WebSocket } from 'ws';
 
 @Injectable()

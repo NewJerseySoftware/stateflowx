@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { parseJsonRPCData } from 'src/ws/util/utils';
-import { JsonRpcService } from 'src/ws/provider/json-rpc/json-rpc.service';
+import { parseJsonRPCData } from 'src/adapters/ws/util/utils';
+import { JsonRpcService } from 'src/adapters/ws/provider/json-rpc/json-rpc.service';
 import { JSONRPCServerAndClient } from 'json-rpc-2.0';
 import { ITableRPC } from './interface/table-rpc.interface';
 import { ICreateTableForm } from './interface/create-table.interface';
-import { IWebSocket } from 'src/ws/interface/ws.interface';
+import { IWebSocket } from 'src/adapters/ws/interface/ws.interface';
 
 @Injectable()
-export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
+export class TableJsonrpcService extends JsonRpcService {
   server: any;
   clientsMap: any;
   constructor(
@@ -40,26 +40,26 @@ export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
           };
           return this.result;
         }
-        response = this.tableController
-          .getPaginatedTables(data.page, data.max)
-          .then(async (data) => {
-            if (data.success) {
-              this.result.res.success = true;
-              return this.encryptionService
-                .applyFilterOne(data.data)
-                .then((res: any) => {
-                  this.result.res.data = res;
-                  this.result.res.data['called'] = socketID;
-                  this.ws.roomID = 'lobby'; // if you're paginating you're in the lobby
-                  return this.result;
-                });
-            } else {
-              return this.buildErrorResult(this.result, data.error.message);
-            }
-          });
+        // response = this.tableController
+        //   .getPaginatedTables(data.page, data.max)
+        //   .then(async (data) => {
+        //     if (data.success) {
+        //       this.result.res.success = true;
+        //       return this.encryptionService
+        //         .applyFilterOne(data.data)
+        //         .then((res: any) => {
+        //           this.result.res.data = res;
+        //           this.result.res.data['called'] = socketID;
+        //           this.ws.roomID = 'lobby'; // if you're paginating you're in the lobby
+        //           return this.result;
+        //         });
+        //     } else {
+        //       return this.buildErrorResult(this.result, data.error.message);
+        //     }
+        //   });
         //throw new Error('Simulated MongoDB error.');
       } catch (error) {
-        return this.buildErrorResult(this.result, error.message);
+        //return this.buildErrorResult(this.result, error.message);
       }
       return response;
     });
@@ -79,6 +79,8 @@ export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
           socketid: data.socketid,
           activeTime: data.activeTime,
         };
+
+        /*
         result = this.tableController.createTable(newTable).then((data) => {
           if (data.success) {
             this.result.res.success = true;
@@ -111,10 +113,11 @@ export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
           } else {
             return this.buildErrorResult(this.result, data.error.message);
           }
-        });
+        });*/
+
         // throw new Error('Simulated MongoDB error.');
       } catch (error) {
-        return this.buildErrorResult(this.result, error.message);
+        //return this.buildErrorResult(this.result, error.message);
       }
       return result;
     });
@@ -126,23 +129,23 @@ export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
       try {
         const data = parseJsonRPCData(res[0]);
         const socketID = data.socketid;
-        result = this.tableController.getPlayers(data.tableid).then((data) => {
-          if (data.success) {
-            this.result.res.success = true;
-            return (this.result.res.data = this.encryptionService
-              .applyFilterOne(data.data)
-              .then((res: any) => {
-                this.result.res.data = res;
-                this.result.res.data['called'] = socketID;
-                return this.result;
-              }));
-          } else {
-            return this.buildErrorResult(this.result, data.error.message);
-          }
-        });
+        // result = this.tableController.getPlayers(data.tableid).then((data) => {
+        //   if (data.success) {
+        //     this.result.res.success = true;
+        //     return (this.result.res.data = this.encryptionService
+        //       .applyFilterOne(data.data)
+        //       .then((res: any) => {
+        //         this.result.res.data = res;
+        //         this.result.res.data['called'] = socketID;
+        //         return this.result;
+        //       }));
+        //   } else {
+        //     return this.buildErrorResult(this.result, data.error.message);
+        //   }
+        // });
         // throw new Error('Simulated MongoDB error.');
       } catch (error) {
-        return this.buildErrorResult(this.result, error.message);
+        //return this.buildErrorResult(this.result, error.message);
       }
       return result;
     });
@@ -154,40 +157,40 @@ export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
       try {
         const data = parseJsonRPCData(res[0]);
         const socketID = data.socketid;
-        result = this.tableController.getTable(data.tableId).then((data) => {
-          if (data.success) {
-            this.result.res.success = true;
-            const ACTIVE = data.data?.gameID?.active;
-            const gid = data.data?.gameID._id;
-            const gidEncrypt = gid?.toString();
-            this.ws.gameID = gidEncrypt;
-            const GAMEID = this.encryptionService.encryptString(gidEncrypt);
-            //this.ws.gameID = GAMEID;
-            return this.encryptionService
-              .applyFilterOne(data)
-              .then((res: any) => {
-                this.ws.roomID = res._id;
-                this.ws.gameID = GAMEID;
-                this.result.res = res;
-                if (this.result.res.data) {
-                  this.result.res.data['called'] = socketID;
-                  this.result.res.data['getTime'] = Date.now().toString();
-                  this.result.res.data['active'] = ACTIVE;
-                  this.result.res.data['gameID'] = GAMEID;
-                }
-                if (data.data?.gameID?.seats?.size > 0) {
-                  this.result.res.data['seats'] = true;
-                }else{
-                  this.result.res.data['seats'] = false;
-                }
-                return this.result;
-              });
-          } else {
-            return this.buildErrorResult(this.result, data.error.message);
-          }
-        });
+        // result = this.tableController.getTable(data.tableId).then((data) => {
+        //   if (data.success) {
+        //     this.result.res.success = true;
+        //     const ACTIVE = data.data?.gameID?.active;
+        //     const gid = data.data?.gameID._id;
+        //     const gidEncrypt = gid?.toString();
+        //     this.ws.gameID = gidEncrypt;
+        //     const GAMEID = this.encryptionService.encryptString(gidEncrypt);
+        //     //this.ws.gameID = GAMEID;
+        //     return this.encryptionService
+        //       .applyFilterOne(data)
+        //       .then((res: any) => {
+        //         this.ws.roomID = res._id;
+        //         this.ws.gameID = GAMEID;
+        //         this.result.res = res;
+        //         if (this.result.res.data) {
+        //           this.result.res.data['called'] = socketID;
+        //           this.result.res.data['getTime'] = Date.now().toString();
+        //           this.result.res.data['active'] = ACTIVE;
+        //           this.result.res.data['gameID'] = GAMEID;
+        //         }
+        //         if (data.data?.gameID?.seats?.size > 0) {
+        //           this.result.res.data['seats'] = true;
+        //         }else{
+        //           this.result.res.data['seats'] = false;
+        //         }
+        //         return this.result;
+        //       });
+        //   } else {
+        //     return this.buildErrorResult(this.result, data.error.message);
+        //   }
+        // });
       } catch (error) {
-        return this.buildErrorResult(this.result, error.message);
+        //return this.buildErrorResult(this.result, error.message);
       }
       return result;
     });
@@ -218,45 +221,45 @@ export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
           tableid &&
           typeof player === 'boolean'
         ) {
-          result = this.tableController
-            .joinTable(tableid, socketID, player)
-            .then((data) => {
-              if (data.success) {
-                this.ws.roomID = tableid; // SET SOCKET roomID
-                this.result.res.success = true;
-                const ACTIVE = data.data.active;
-                const GAMEID = data.data.doc.gameID;
-                return this.encryptionService
-                  .applyFilterOne(data.data)
-                  .then(async (res: any) => {
-                    this.result.res.data = res;
-                    this.result.res.data['called'] = socketID;
-                    this.result.res.data['_id'] = this.ws.roomID;
-                    this.result.res.data.doc._id = this.ws.roomID;
-                    this.result.res.data['active'] = ACTIVE;
-                    const gid = GAMEID._id.toString();
-                    // this.ws.gameID = gid; // <-- if you're at join you already called getTable
-                    this.result.res.data['startTime'] =
-                      this.result.res.data.doc.startTime;
-                    this.result.res.data['getTime'] = Date.now().toString();
-                    delete this.result.res.data.doc;
+          // result = this.tableController
+          //   .joinTable(tableid, socketID, player)
+          //   .then((data) => {
+          //     if (data.success) {
+          //       this.ws.roomID = tableid; // SET SOCKET roomID
+          //       this.result.res.success = true;
+          //       const ACTIVE = data.data.active;
+          //       const GAMEID = data.data.doc.gameID;
+          //       return this.encryptionService
+          //         .applyFilterOne(data.data)
+          //         .then(async (res: any) => {
+          //           this.result.res.data = res;
+          //           this.result.res.data['called'] = socketID;
+          //           this.result.res.data['_id'] = this.ws.roomID;
+          //           this.result.res.data.doc._id = this.ws.roomID;
+          //           this.result.res.data['active'] = ACTIVE;
+          //           const gid = GAMEID._id.toString();
+          //           // this.ws.gameID = gid; // <-- if you're at join you already called getTable
+          //           this.result.res.data['startTime'] =
+          //             this.result.res.data.doc.startTime;
+          //           this.result.res.data['getTime'] = Date.now().toString();
+          //           delete this.result.res.data.doc;
 
-                    //joined table, eligable for cleanup
-                    this.ws.eligableForDBCleanup = true;
+          //           //joined table, eligable for cleanup
+          //           this.ws.eligableForDBCleanup = true;
 
-                    return this.result;
-                  });
-              } else {
-                return this.buildErrorResult(
-                  this.result,
-                  data.error.message,
-                  data.error.id,
-                );
-              }
-            });
+          //           return this.result;
+          //         });
+          //     } else {
+          //       return this.buildErrorResult(
+          //         this.result,
+          //         data.error.message,
+          //         data.error.id,
+          //       );
+          //     }
+          //   });
         }
       } catch (error) {
-        return this.buildErrorResult(this.result, error.message);
+        //return this.buildErrorResult(this.result, error.message);
       }
       return result;
     });
@@ -276,20 +279,20 @@ export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
           };
         } else {
           this.result.res.success = true;
-          const userDBIDENCRYPTED = this.encryptionService.encryptString(
-            this.ws.userDBID,
-          );
-          this.result.res.data = {
-            socketid: this.ws.id,
-            roomID: this.ws.roomID,
-            userDBID: userDBIDENCRYPTED,
-            gameID: this.ws.gameID || null,
-            seat: this.ws.seat, // NOT USING SO FAR......
-          };
+          // const userDBIDENCRYPTED = this.encryptionService.encryptString(
+          //   this.ws.userDBID,
+          // );
+          // this.result.res.data = {
+          //   socketid: this.ws.id,
+          //   roomID: this.ws.roomID,
+          //   userDBID: userDBIDENCRYPTED,
+          //   gameID: this.ws.gameID || null,
+          //   seat: this.ws.seat, // NOT USING SO FAR......
+          // };
           return this.result;
         }
       } catch (error) {
-        return this.buildErrorResult(this.result, error.message);
+        //return this.buildErrorResult(this.result, error.message);
       }
     });
   }
@@ -309,29 +312,29 @@ export class TableJsonrpcService extends JsonRpcService implements ITableRPC {
           };
           return this.result;
         } else {
-          result = this.tableController
-            .leaveTable(this.ws.gameID, this.ws.id, data.tableid)
-            .then(async (data) => {
-              if (data.success) {
-                this.result.res.success = true;
-                this.result.res.data = data;
-                this.result.res.data['called'] = socketID;
-                await this.gameDBController.removeSeatMapValue(
-                  this.ws.gameID,
-                  this.ws.id,
-                );
-                return this.result;
-              } else {
-                return this.buildErrorResult(
-                  this.result,
-                  data.error.message,
-                  data.error.id,
-                );
-              }
-            });
+          // result = this.tableController
+          //   .leaveTable(this.ws.gameID, this.ws.id, data.tableid)
+          //   .then(async (data) => {
+          //     if (data.success) {
+          //       this.result.res.success = true;
+          //       this.result.res.data = data;
+          //       this.result.res.data['called'] = socketID;
+          //       await this.gameDBController.removeSeatMapValue(
+          //         this.ws.gameID,
+          //         this.ws.id,
+          //       );
+          //       return this.result;
+          //     } else {
+          //       return this.buildErrorResult(
+          //         this.result,
+          //         data.error.message,
+          //         data.error.id,
+          //       );
+          //     }
+          //   });
         }
       } catch (error) {
-        return this.buildErrorResult(this.result, error.message);
+        //return this.buildErrorResult(this.result, error.message);
       }
       return result;
     });
