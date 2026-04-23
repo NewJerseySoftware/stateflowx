@@ -12,10 +12,14 @@ import {
   JSONRPCServerAndClient,
 } from 'json-rpc-2.0';
 import { Server, WebSocket } from 'ws';
-import { applicationInputTypes, isJsonString } from 'src/adapters/ws/util/utils';
+import { applicationInputTypes, isJsonString } from '../util/utils';
 import { IWebSocket } from '../interface/ws.interface';
 import { isObject } from 'class-validator';
-import { PingPongJsonrpcService } from 'src/examples/ping-pong/json-rpc/ping-pong.jsonrpc.service';
+import { PingPongJsonrpcService } from '../../../examples/ping-pong/json-rpc/ping-pong.jsonrpc.service';
+import { jsonRpcAdapter } from '../../../adapters/json-rpc/jsonrpc.adapter';
+import { InMemoryDB } from '../../../adapters/db/in-memory.db';
+import { bootstrapRuntime } from '../../../core/runtime/bootstrap';
+import { PingPongApp } from '../../../demo/apps/ping-pong/ping-pong.app';
 
 @WebSocketGateway()
 export default class EventsGateway
@@ -44,8 +48,16 @@ export default class EventsGateway
 
     client.jsonSC = jsonSC;
 
-    const pingPongRPC = new PingPongJsonrpcService(jsonSC, client);
-    pingPongRPC.register();
+    // const pingPongRPC = new PingPongJsonrpcService(jsonSC, client);
+    // pingPongRPC.register();
+    const runtimeConfig = {
+      adapters: [jsonRpcAdapter],
+      db: new InMemoryDB(),
+      transport: {
+        jsonrpc: jsonSC.server,
+      },
+    };
+    bootstrapRuntime(jsonSC.server, [PingPongApp], runtimeConfig);
 
     client.on('message', (msg: any) => {
       console.log('incoming:', msg.toString());
