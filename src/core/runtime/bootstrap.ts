@@ -1,8 +1,24 @@
-import { register } from "./register";
+import { createRuntimeContext } from './create-runtime-context';
 
-export function bootstrapRuntime(server: any, apps: any[], config: any) {
-  apps.forEach(app => register(app, {
-    ...config,
-    transport: { jsonrpc: server }
-  }));
+import { RuntimeApp } from './runtime-app.interface';
+
+import { RuntimeConfig } from './runtime-config.interface';
+
+export function bootstrapRuntime(
+  apps: RuntimeApp[],
+  config: RuntimeConfig,
+) {
+
+  apps.forEach((app) => {
+
+    const context =
+      createRuntimeContext(
+        app,
+        config,
+      );
+
+    app.register(
+      context,
+    );
+  });
 }

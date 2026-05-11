@@ -1,32 +1,39 @@
-import { DB } from '../../core/db.interface';
+import { DB }
+from 'src/core/db.interface';
 
-export class InMemoryDB implements DB {
-  private store = new Map<string, any>();
+export class InMemoryDB
+implements DB {
 
-  constructor(private namespace: string = 'default') {}
+  private store =
+    new Map<string, any>();
 
-  private buildKey(key: string): string {
-    return `${this.namespace}:${key}`;
+  get<T = any>(
+    key: string,
+  ): T | undefined {
+
+    return this.store.get(key);
   }
 
-  get<T = any>(key: string): T | undefined {
-    return this.store.get(this.buildKey(key));
+  set<T = any>(
+    key: string,
+    value: T,
+  ): void {
+
+    this.store.set(
+      key,
+      value,
+    );
   }
 
-  set<T = any>(key: string, value: T): void {
-    this.store.set(this.buildKey(key), value);
-  }
+  delete(
+    key: string,
+  ): void {
 
-  delete(key: string): void {
-    this.store.delete(this.buildKey(key));
+    this.store.delete(key);
   }
 
   clear(): void {
-    const prefix = `${this.namespace}:`;
-    for (const key of this.store.keys()) {
-      if (key.startsWith(prefix)) {
-        this.store.delete(key);
-      }
-    }
+
+    this.store.clear();
   }
 }

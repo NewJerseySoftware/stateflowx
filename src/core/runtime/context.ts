@@ -1,7 +1,7 @@
 import { InMemoryDB } from '../../adapters/db/in-memory.db';
 import { AppContext } from '../app-context.interface';
 import { StateflowApp } from '../app.interface';
-import { RuntimeConfig } from './runtime-config';
+import { RuntimeConfig } from './runtime-config.interface';
 
 export function createContext(
   app: StateflowApp,
