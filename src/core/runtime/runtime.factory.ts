@@ -7,9 +7,6 @@ import {
 import { InMemoryDB }
 from '../../adapters/db/in-memory.db';
 
-import { jsonRpcAdapter }
-from '../../adapters/json-rpc/jsonrpc.adapter';
-
 import { bootstrapRuntime }
 from './bootstrap';
 
@@ -24,6 +21,12 @@ from '../../examples/ping-pong/ping-pong.app';
 
 import { RelayOpsApp }
 from '../../examples/relay-ops/relay-ops.app';
+
+import { JsonRpcProtocol }
+from '../protocol/json-rpc/json-rpc.protocol';
+
+import { WebSocketTransport }
+from '../transport/websocket/websocket.transport';
 
 export function createRuntime(
   client: any,
@@ -58,17 +61,18 @@ export function createRuntime(
 
   const runtimeConfig = {
 
-    adapters: [
-      jsonRpcAdapter,
-    ],
-
-    db:
+    db: 
       new InMemoryDB(),
 
-    transport: {
-      jsonrpc:
+    protocol:
+      new JsonRpcProtocol(
         jsonSC.server,
-    },
+      ),
+
+    transport:
+      new WebSocketTransport(
+        client,
+      ),
 
     providers,
   };

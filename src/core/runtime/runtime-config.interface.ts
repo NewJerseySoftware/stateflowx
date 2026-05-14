@@ -9,20 +9,26 @@ from '../provider/provider.manager';
 
 export interface RuntimeConfig {
 
+  protocol:any;
+
+  // ai:any;
+
   providers:
     ProviderManager;
 
-  adapters:
-    Adapter[];
+  // adapters:
+  //   Adapter[];
 
   db?: DB;
 
-  transport?: {
+  transport:any;
 
-    jsonrpc?: any;
+  // transport?: {
 
-    http?: any;
-  };
+  //   jsonrpc?: any;
+
+  //   http?: any;
+  // };
 }
 // import { DB } from "../db.interface";
 // import { Adapter } from "./adapter.interface";

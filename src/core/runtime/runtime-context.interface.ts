@@ -7,6 +7,7 @@ export interface RuntimeContext {
   state: Record<string, any>;
 
   transport: any;
+  protocol: any;
 
   ai: ProviderManager;
 

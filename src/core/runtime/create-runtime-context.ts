@@ -21,6 +21,9 @@ export function createRuntimeContext(
     transport:
       config.transport,
 
+    protocol:
+      config.protocol,
+
     ai:
       config.providers,
 
@@ -29,11 +32,10 @@ export function createRuntimeContext(
       handler: Function,
     ) {
 
-      config.transport?.jsonrpc
-        ?.addMethod(
-          route,
-          handler,
-        );
+      config.protocol?.addMethod(
+        route,
+        handler,
+      );
     },
   };
 }
