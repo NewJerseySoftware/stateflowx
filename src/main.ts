@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { WsAdapter } from '@nestjs/platform-ws';
@@ -10,4 +12,5 @@ async function bootstrap() {
 
   await app.listen(3000);
 }
+
 bootstrap();

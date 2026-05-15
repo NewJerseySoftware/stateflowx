@@ -1,31 +1,25 @@
-import { GoogleGenerativeAI }
-from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-import { AgentProvider }
-from '../provider.interface';
+import { AgentProvider } from '../provider.interface';
 
-export class GeminiProvider
-implements AgentProvider {
+export class GeminiProvider implements AgentProvider {
+  private genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-  private readonly genAI =
-    new GoogleGenerativeAI(
-      process.env.GEMINI_API_KEY!,
-    );
+  async generate(prompt: string): Promise<string> {
+    console.log('Gemini prompt:', prompt);
 
-  private readonly model =
-    this.genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+    const model = this.genAI.getGenerativeModel({
+      //model: 'gemini-pro'
+      model: 'gemini-2.5-flash'
+      //model: 'gemini-1.5-flash',
     });
 
-  async generate(
-    prompt: string,
-  ): Promise<string> {
+    const result = await model.generateContent(prompt);
 
-    const result =
-      await this.model.generateContent(
-        prompt,
-      );
+    const text = result.response.text();
 
-    return result.response.text();
+    console.log('Gemini response:', text);
+
+    return text;
   }
 }
