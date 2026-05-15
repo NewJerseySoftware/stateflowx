@@ -1,37 +1,19 @@
-import { AgentProvider }
-from './provider.interface';
+import { AgentProvider } from './provider.interface';
 
 export class ProviderManager {
+  private providers = new Map<string, AgentProvider>();
 
-  private providers =
-    new Map<string, AgentProvider>();
+  private defaultProvider = 'default';
 
-  private defaultProvider =
-    'default';
-
-  register(
-    name: string,
-    provider: AgentProvider,
-  ) {
-
-    this.providers.set(
-      name,
-      provider,
-    );
+  register(name: string, provider: AgentProvider) {
+    this.providers.set(name, provider);
   }
 
-  get(
-    name: string,
-  ): AgentProvider {
-
-    const provider =
-      this.providers.get(name);
+  get(name: string): AgentProvider {
+    const provider = this.providers.get(name);
 
     if (!provider) {
-
-      throw new Error(
-        `Provider not found: ${name}`,
-      );
+      throw new Error(`Provider not found: ${name}`);
     }
 
     return provider;
@@ -39,15 +21,10 @@ export class ProviderManager {
 
   async generate(
     prompt: string,
-    providerName =
-      this.defaultProvider,
+    providerName = this.defaultProvider
   ): Promise<string> {
+    const provider = this.get(providerName);
 
-    const provider =
-      this.get(providerName);
-
-    return provider.generate(
-      prompt,
-    );
+    return provider.generate(prompt);
   }
 }

@@ -1,46 +1,15 @@
-import { DB }
-from '../db.interface';
+import { DB } from '../db.interface';
 
-import { Adapter }
-from './adapter.interface';
-
-import { ProviderManager }
-from '../provider/provider.manager';
+import { ProviderManager } from '../provider/provider.manager';
 
 export interface RuntimeConfig {
+  protocol: any;
 
-  protocol:any;
-
-  // ai:any;
-
-  providers:
-    ProviderManager;
-
-  // adapters:
-  //   Adapter[];
+  providers: ProviderManager;
 
   db?: DB;
 
-  transport:any;
+  //transport: any;
 
-  // transport?: {
-
-  //   jsonrpc?: any;
-
-  //   http?: any;
-  // };
 }
-// import { DB } from "../db.interface";
-// import { Adapter } from "./adapter.interface";
-// import { ProviderManager } from "../provider/provider.manager";
 
-// export interface RuntimeConfig {
-//   providers: ProviderManager;
-//   adapters: Adapter[];
-//   db?: DB;
-//   transport?: {
-//     jsonrpc?: any;
-//     http?: any;
-//     ai?: any;
-//   };
-// }
