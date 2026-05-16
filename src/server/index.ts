@@ -1,1 +1,0 @@
-export * from '../core/transport/ws/events.gateway';

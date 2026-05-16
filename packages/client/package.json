@@ -1,0 +1,32 @@
+{
+  "name": "@stateflowx/client",
+  "version": "1.0.0",
+  "description": "Client SDK for StateFlowX realtime runtimes.",
+  "author": "Burt Snyder <snyder.burt@gmail.com>",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "json-rpc-2.0": "^1.5.1"
+  },
+  "devDependencies": {
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "@types/node": "18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "jest": "^30.3.0",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3"
+  }
+}

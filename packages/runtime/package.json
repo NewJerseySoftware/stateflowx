@@ -1,35 +1,29 @@
 {
-  "name": "stateflowx",
+  "name": "@stateflowx/runtime",
   "version": "1.0.0",
-  "description": "Lightweight runtime for protocol-driven AI and realtime workflows.",
+  "description": "Runtime server for StateFlowX realtime AI workflows.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "type": "module",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "scripts": {
+    "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "format": "prettier --write \"src/**/*.ts\"",
-    "test": "jest --passWithNoTests",
-    "test:watch": "jest --watch --passWithNoTests",
-    "test:cov": "jest --coverage --passWithNoTests",
-    "example:ping-pong": "ts-node src/examples/ping-pong/client/client.ts",
-    "example:relay-ops": "ts-node src/examples/relay-ops/client/client.ts",
-    "build:lib": "tsc -p tsconfig.lib.json",
-    "runtime:dev": "cd packages/runtime && npm run start:dev",
-    "runtime:build": "cd packages/runtime && npm run build",
-    "client:build": "cd packages/client && npm run build",
-    "build": "npm run client:build && npm run runtime:build"
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@nestjs/common": "^11.1.19",
     "@nestjs/core": "^11.1.19",
+    "@nestjs/platform-express": "^11.1.21",
     "@nestjs/platform-ws": "^11.1.19",
     "@nestjs/websockets": "^11.1.19",
+    "class-validator": "^0.15.1",
     "dotenv": "^16.3.1",
     "json-rpc-2.0": "^1.5.1",
     "reflect-metadata": "^0.1.13",
@@ -57,24 +51,5 @@
     "ts-node": "^10.0.0",
     "tsconfig-paths": "4.1.1",
     "typescript": "^6.0.3"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": [
-        "@swc/jest"
-      ]
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }
