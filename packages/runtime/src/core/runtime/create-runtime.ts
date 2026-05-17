@@ -17,7 +17,11 @@ import { JsonRpcProtocol } from '../protocol/json-rpc/json-rpc.protocol.js';
 import { PingPongApp } from '../../examples/ping-pong/ping-pong.app.js';
 import { RelayOpsApp } from '../../examples/relay-ops/relay-ops.app.js';
 
-export function createRuntime(client: any) {
+interface RuntimeClient {
+  send(data: string): void;
+}
+
+export function createRuntime(client: RuntimeClient) {
   const jsonSC = new JSONRPCServerAndClient(
     new JSONRPCServer(),
     new JSONRPCClient((request) => {

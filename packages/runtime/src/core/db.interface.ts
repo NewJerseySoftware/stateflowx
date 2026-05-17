@@ -1,6 +1,9 @@
 export interface DB {
-  get<T = any>(key: string): T | undefined;
-  set<T = any>(key: string, value: T): void;
+  get<T = unknown>(key: string): T | undefined;
+
+  set<T = unknown>(key: string, value: T): void;
+
   delete(key: string): void;
+
   clear(): void;
 }

@@ -20,8 +20,12 @@
     "example:relay-ops": "ts-node src/examples/relay-ops/client/client.ts",
     "build:lib": "tsc -p tsconfig.lib.json",
     "runtime:dev": "cd packages/runtime && npm run start:dev",
-    "runtime:build": "cd packages/runtime && npm run build",
-    "client:build": "cd packages/client && npm run build",
+    "runtime:clean": "cd packages/runtime && rm -rf dist",
+    "client:clean": "cd packages/client && rm -rf dist",
+    "runtime:build": "npm run runtime:clean && cd packages/runtime && npm run build",
+    "client:build": "npm run client:clean && cd packages/client && npm run build",
+    "runtime:install": "cd packages/runtime && npm install",
+    "client:install": "cd packages/client && npm install",
     "build": "npm run client:build && npm run runtime:build"
   },
   "dependencies": {

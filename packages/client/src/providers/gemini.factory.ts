@@ -1,8 +1,7 @@
-export interface GeminiOptions {
-  apiKey: string;
-}
+import { ProviderOptions } from "./provider-options.interface.js";
 
-export function gemini(options: GeminiOptions) {
+
+export function gemini(options: ProviderOptions) {
   return {
     type: 'gemini',
     ...options,

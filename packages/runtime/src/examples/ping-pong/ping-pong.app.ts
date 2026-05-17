@@ -14,7 +14,10 @@ export class PingPongApp implements RuntimeApp {
     });
 
     runtime.prompt('increment', async () => {
-      runtime.state.counter++;
+      const currentCounter = 
+      typeof runtime.state.counter === 'number' ? runtime.state.counter : 0;
+
+      runtime.state.counter = currentCounter + 1;
 
       return {
         counter: runtime.state.counter,

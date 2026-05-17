@@ -10,6 +10,4 @@ export interface RuntimeConfig {
   db?: DB;
 
   //transport: any;
-
 }
-

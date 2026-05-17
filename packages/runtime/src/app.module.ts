@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
+import EventsGateway from './core/transport/ws/events.gateway.js';
 
-import EventsGateway from './gateway/events.gateway.js';
 
 @Module({
   providers: [EventsGateway],

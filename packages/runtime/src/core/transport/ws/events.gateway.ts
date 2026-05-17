@@ -7,12 +7,20 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
+import { randomUUID } from 'crypto';
+import { RawData } from 'ws';
+
 import { isObject } from 'class-validator';
 import { Server } from 'ws';
 
 import { createRuntime } from '../../runtime/create-runtime.js';
 import { IWebSocket } from './ws.interface.js';
 import { applicationInputTypes } from './utils.js';
+import { logger } from '../../logger/logger.js';
+
+interface Runtime {
+  receiveAndSend(payload: unknown): void;
+}
 
 @WebSocketGateway()
 export default class EventsGateway
@@ -28,82 +36,133 @@ export default class EventsGateway
   maxDataLength = 1500;
 
   handleConnection(client: IWebSocket) {
-    console.log('Client connected');
+    client.id = randomUUID();
+    logger.info(
+      {
+        clientId: client.id,
+        transport: 'websocket',
+        protocol: 'json-rpc',
+        connectedAt: Date.now(),
+      },
+      'Client connected'
+    );
 
     const runtime = createRuntime(client);
 
-    client.jsonSC = runtime;
+    client.runtime = runtime;
 
-    client.on('message', (msg: any) => {
-      console.log('incoming:', msg.toString());
+    client.on('message', (msg: RawData) => {
+      const rawMessage = msg.toString();
+
+      logger.debug(
+        {
+          clientId: client.id,
+          size: rawMessage.length,
+        },
+        'Incoming websocket message'
+      );
 
       try {
-        const data = JSON.parse(msg.toString());
+        const data: unknown = JSON.parse(rawMessage);
 
         runtime.receiveAndSend(data);
-      } catch (err) {
-        console.error('Invalid JSON:', err);
+      } catch (err: unknown) {
+        logger.error(
+          {
+            clientId: client.id,
+            err,
+          },
+          'Runtime execution failed'
+        );
       }
     });
   }
 
-  handleMessage(client: IWebSocket, payload: any) {
-    client.jsonSC.receiveAndSend(payload);
+  handleMessage(client: IWebSocket, payload: unknown) {
+    client.runtime.receiveAndSend(payload);
   }
 
   handleDisconnect(
     @ConnectedSocket()
     clientWS: IWebSocket
   ) {
-    console.log(`${clientWS.id} disconnected`);
+    logger.info(
+      {
+        clientId: clientWS.id,
+      },
+      'Client disconnected'
+    );
 
     this.clientsMap.delete(clientWS.id);
   }
 
   afterInit() {
-    console.log('WebSocketGateway initialized');
+    logger.info('WebSocketGateway initialized');
   }
 
-  responseToClient(jsonSC: any, message: any): void {
-    jsonSC.receiveAndSend(JSON.parse(message));
+  // responseToClient(jsonSC: any, message: unknown): void {
+  //   jsonSC.receiveAndSend(JSON.parse(message));
+  // }
+  responseToClient(runtime: Runtime, message: unknown): void {
+    runtime.receiveAndSend(message);
   }
 
-  responseToALLClients(message: any): void {
+  responseToALLClients(message: unknown): void {
     this.server.clients.forEach((client: IWebSocket) => {
       if (client.readyState === 1) {
-        this.responseToClient(client.jsonSC, message);
+        this.responseToClient(client.runtime, message);
       }
     });
   }
 
-  isValidObject(value: any, client: IWebSocket): boolean {
-    if (applicationInputTypes(value.data)) {
-      if (typeof value.data === 'string') {
-        const len = value.data.length;
+  isValidObject(value: unknown, client: IWebSocket): boolean {
+    if (typeof value === 'object' && value !== null && 'data' in value) {
+      const data = value.data;
 
-        if (len <= this.maxDataLength) {
-          return isObject(value);
+      if (applicationInputTypes(data)) {
+        if (typeof data === 'string') {
+          const len = data.length;
+
+          if (len <= this.maxDataLength) {
+            return isObject(value);
+          }
+
+          client.terminate();
+
+          logger.warn(
+            {
+              clientId: client.id,
+              maxDataLength: this.maxDataLength,
+            },
+            'Payload exceeded max length'
+          );
+
+          return false;
         }
 
         client.terminate();
 
-        console.log(
-          `data length over ${this.maxDataLength} disconnecting client: ${client.id}`
+        logger.warn(
+          {
+            clientId: client.id,
+            reason: 'invalid-data-input',
+          },
+          'Client terminated'
         );
 
         return false;
       }
-
-      client.terminate();
-
-      console.log(`data input error disconnecting client: ${client.id}`);
-
-      return false;
     }
 
     client.terminate();
 
-    console.log(`data input wrong type disconnecting client: ${client.id}`);
+    logger.warn(
+      {
+        clientId: client.id,
+        reason: 'invalid-data-type',
+      },
+      'Client terminated'
+    );
 
     return false;
   }
