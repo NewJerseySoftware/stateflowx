@@ -3,6 +3,21 @@
   "version": "0.1.0",
   "description": "Client SDK for StateFlowX realtime runtimes.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NewJerseySoftware/stateflowx.git"
+  },
+  "keywords": [
+    "client",
+    "websocket",
+    "json-rpc",
+    "realtime",
+    "typescript"
+  ],
+  "homepage": "https://github.com/NewJerseySoftware/stateflowx",
+  "bugs": {
+    "url": "https://github.com/NewJerseySoftware/stateflowx/issues"
+  },
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",
