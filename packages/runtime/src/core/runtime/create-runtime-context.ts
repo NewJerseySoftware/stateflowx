@@ -1,7 +1,11 @@
 import { InMemoryDB } from '../storage/in-memory.db.js';
+
 import { RuntimeContext } from './runtime-context.interface.js';
 import { RuntimeApp } from './runtime-app.interface.js';
 import { RuntimeConfig } from './runtime-config.interface.js';
+
+import { ServiceManager } from '../service/service.manager.js';
+import { ProviderManager } from '../provider/provider.manager.js';
 
 export function createRuntimeContext(
   app: RuntimeApp,
@@ -9,16 +13,19 @@ export function createRuntimeContext(
 ): RuntimeContext {
   const db = config.db ? config.db : new InMemoryDB();
 
+  const providerManager = new ProviderManager(config.providers);
+  const serviceManager = new ServiceManager(config.services);
+
   return {
     db,
 
     state: {},
 
-    //transport: config.transport,
-
     protocol: config.protocol,
 
-    ai: config.providers,
+    ai: providerManager,
+
+    services: serviceManager,
 
     prompt(route: string, handler: Function) {
       config.protocol?.addMethod(route, handler);

@@ -1,9 +1,16 @@
+import { ProviderConfig } from './provider.config.interface.js';
 import { AgentProvider } from './provider.interface.js';
 
 export class ProviderManager {
   private providers = new Map<string, AgentProvider>();
 
   private defaultProvider = 'default';
+
+  constructor(providers: ProviderConfig[] = []) {
+    providers.forEach(({ name, provider }) => {
+      this.register(name, provider);
+    });
+  }
 
   register(name: string, provider: AgentProvider) {
     this.providers.set(name, provider);

@@ -1,11 +1,13 @@
 import { DB } from '../db.interface.js';
 
+import { RuntimeApp } from './runtime-app.interface.js';
+
 import { ProviderConfig } from '../provider/provider.config.interface.js';
 
 import { ServiceConfig } from '../service/service-config.interface.js';
 
-export interface RuntimeConfig {
-  protocol: any;
+export interface CreateRuntimeConfig {
+  apps: RuntimeApp[];
 
   providers: ProviderConfig[];
 

@@ -1,14 +1,10 @@
 import { JSONRPCClient, JSONRPCResponse } from 'json-rpc-2.0';
-import { StateFlowXConfig } from '../config/stateflowx-config.interface.js';
 
-// export interface ClientConfig {
-//   transport: {
-//     url: string;
-//   };
-// }
+import { StateFlowXConfig } from '../config/stateflowx-config.interface.js';
 
 export interface ClientApi {
   connect(): Promise<void>;
+
   request<TResponse, TParams = unknown>(
     method: string,
     params?: TParams
@@ -19,12 +15,9 @@ export function createClient(config: StateFlowXConfig): ClientApi {
   const socket = new WebSocket(config.transport.url);
 
   const connected = new Promise<void>((resolve, reject) => {
-    socket.onopen = () => {
-      resolve();
-    };
-    socket.onerror = (err) => {
-      reject(err);
-    };
+    socket.onopen = () => resolve();
+
+    socket.onerror = (err) => reject(err);
   });
 
   const rpc = new JSONRPCClient((request) => {
@@ -53,18 +46,21 @@ export function createClient(config: StateFlowXConfig): ClientApi {
       return rpc.request(method, params) as Promise<TResponse>;
     },
   };
-  // return {
-  //   connect() {
-  //     return connected;
-  //   },
-  //   async request<TResponse, TParams = unknown>(
-  //     method: string,
-  //     params?: TParams
-  //   ): Promise<TResponse> {
-  //     return rpc.request(method, params) as Promise<TResponse>;
-  //   },
-  // };
 }
+
+
+// return {
+//   connect() {
+//     return connected;
+//   },
+//   async request<TResponse, TParams = unknown>(
+//     method: string,
+//     params?: TParams
+//   ): Promise<TResponse> {
+//     return rpc.request(method, params) as Promise<TResponse>;
+//   },
+// };
+//}
 
 // import { JSONRPCClient } from 'json-rpc-2.0';
 

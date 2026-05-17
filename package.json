@@ -1,6 +1,6 @@
 {
   "name": "stateflowx",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Lightweight runtime for protocol-driven AI and realtime workflows.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
   "license": "Apache-2.0",

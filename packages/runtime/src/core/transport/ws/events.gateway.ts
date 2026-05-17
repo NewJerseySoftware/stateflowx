@@ -8,19 +8,22 @@ import {
 } from '@nestjs/websockets';
 
 import { randomUUID } from 'crypto';
-import { RawData } from 'ws';
+
+import { RawData, Server, WebSocket } from 'ws';
 
 import { isObject } from 'class-validator';
-import { Server } from 'ws';
 
 import { createRuntime } from '../../runtime/create-runtime.js';
+
 import { IWebSocket } from './ws.interface.js';
+
 import { applicationInputTypes } from './utils.js';
+
 import { logger } from '../../logger/logger.js';
 
-interface Runtime {
-  receiveAndSend(payload: unknown): void;
-}
+import { GeminiProvider } from '../../provider/providers/gemini.provider.js';
+
+import { RuntimeInitializeApp } from '../../runtime/runtime-app-init.js';
 
 @WebSocketGateway()
 export default class EventsGateway
@@ -37,6 +40,7 @@ export default class EventsGateway
 
   handleConnection(client: IWebSocket) {
     client.id = randomUUID();
+
     logger.info(
       {
         clientId: client.id,
@@ -47,11 +51,22 @@ export default class EventsGateway
       'Client connected'
     );
 
-    const runtime = createRuntime(client);
+    const runtime = createRuntime(client, {
+
+      apps: [new RuntimeInitializeApp()],
+
+      providers: [
+        {
+          name: 'default',
+          provider: new GeminiProvider(),
+        },
+      ],
+      services: []
+    });
 
     client.runtime = runtime;
 
-    client.on('message', (msg: RawData) => {
+    client.on('message', async (msg: RawData) => {
       const rawMessage = msg.toString();
 
       logger.debug(
@@ -65,7 +80,7 @@ export default class EventsGateway
       try {
         const data: unknown = JSON.parse(rawMessage);
 
-        runtime.receiveAndSend(data);
+        await runtime.receiveAndSend(data);
       } catch (err: unknown) {
         logger.error(
           {
@@ -78,8 +93,8 @@ export default class EventsGateway
     });
   }
 
-  handleMessage(client: IWebSocket, payload: unknown) {
-    client.runtime.receiveAndSend(payload);
+  handleMessage(client: WebSocket, message: string) {
+    return client.send(message);
   }
 
   handleDisconnect(
@@ -98,21 +113,6 @@ export default class EventsGateway
 
   afterInit() {
     logger.info('WebSocketGateway initialized');
-  }
-
-  // responseToClient(jsonSC: any, message: unknown): void {
-  //   jsonSC.receiveAndSend(JSON.parse(message));
-  // }
-  responseToClient(runtime: Runtime, message: unknown): void {
-    runtime.receiveAndSend(message);
-  }
-
-  responseToALLClients(message: unknown): void {
-    this.server.clients.forEach((client: IWebSocket) => {
-      if (client.readyState === 1) {
-        this.responseToClient(client.runtime, message);
-      }
-    });
   }
 
   isValidObject(value: unknown, client: IWebSocket): boolean {
