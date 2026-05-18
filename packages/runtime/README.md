@@ -33,6 +33,52 @@ const runtime = createRuntime({
 
 ```
 
+## Demo Application
+
+Example Angular client implementation:
+
+https://github.com/bws9000/stateflowx-client-demo
+
+## Example Runtime Configuration
+
+```ts
+const config = defineConfig({
+  protocol: jsonRpc(),
+
+  transport: websocket({
+    url: 'ws://localhost:3000',
+  }),
+
+  providers: [
+    gemini({
+      priority: 1,
+    }),
+
+    mockProvider({
+      priority: 2,
+    }),
+  ],
+
+  services: [
+    {
+      name: 'weather',
+      type: 'http',
+      method: 'GET',
+      url: 'https://api.open-meteo.com/v1/forecast?...',
+    },
+  ],
+
+  workflows: [
+    {
+      route: 'weather.execute',
+      service: 'weather',
+      provider: 'default',
+      prompt: 'Format weather data into structured JSON',
+    },
+  ],
+});
+```
+
 ## Current Status
 
 StateFlowX Runtime is currently experimental and under active development.
