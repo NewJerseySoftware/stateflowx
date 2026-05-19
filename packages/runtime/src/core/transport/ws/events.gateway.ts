@@ -57,7 +57,7 @@ export default class EventsGateway
 
       providers: [
         {
-          name: 'default',
+          name: 'gemini',
           provider: new GeminiProvider(),
         },
       ],

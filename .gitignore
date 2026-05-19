@@ -49,3 +49,6 @@ build/config\.gypi
 .npmrc
 pnpm-lock.yaml
 /scripts
+
+# npm package artifacts
+*.tgz

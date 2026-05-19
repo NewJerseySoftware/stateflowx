@@ -5,7 +5,6 @@ import { RuntimeContext } from '../../core/runtime/runtime-context.interface.js'
 import { logger } from '../../core/logger/logger.js';
 import { createHttpService } from '../service/providers/http.service.js';
 
-
 export class RuntimeInitializeApp implements RuntimeApp {
   register(runtime: RuntimeContext) {
     runtime.prompt(
@@ -85,22 +84,22 @@ export class RuntimeInitializeApp implements RuntimeApp {
                 ${JSON.stringify(data)}
                 `;
 
-                            return runtime.ai.generate(enhancedPrompt);
-                            }
-                        );
+              return runtime.ai.generate(enhancedPrompt);
+            }
+          );
 
-                        logger.info(
-                            {
-                            route: workflow.route,
-                            },
-                            'Workflow registered'
-                        );
-                        });
+          logger.info(
+            {
+              route: workflow.route,
+            },
+            'Workflow registered'
+          );
+        });
 
-                        return {
-                        success: true,
-                        };
-                    }
-                    );
-                }
+        return {
+          success: true,
+        };
+      }
+    );
+  }
 }

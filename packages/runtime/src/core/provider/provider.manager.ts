@@ -4,7 +4,7 @@ import { AgentProvider } from './provider.interface.js';
 export class ProviderManager {
   private providers = new Map<string, AgentProvider>();
 
-  private defaultProvider = 'default';
+  private defaultProvider = 'gemini';
 
   constructor(providers: ProviderConfig[] = []) {
     providers.forEach(({ name, provider }) => {

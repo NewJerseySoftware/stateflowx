@@ -50,35 +50,3 @@ export function createRuntime(
     },
   };
 }
-
-// export function createRuntime(
-//   // client: RuntimeClient,
-//   // config: CreateRuntimeConfig
-//   config: RuntimeConfig
-// ) {
-//   const jsonSC = new JSONRPCServerAndClient(
-//     new JSONRPCServer(),
-
-//     new JSONRPCClient((request) => {
-//       client.send(JSON.stringify(request));
-//     })
-//   );
-
-//   const runtimeConfig: RuntimeConfig = {
-//     db: config.db ?? new InMemoryDB(),
-
-//     protocol: new JsonRpcProtocol(jsonSC.server),
-
-//     providers: config.providers,
-
-//     services: config.services,
-//   };
-
-//   bootstrapRuntime(config.apps, runtimeConfig);
-
-//   return {
-//     receiveAndSend(payload: unknown) {
-//       jsonSC.receiveAndSend(payload as any);
-//     },
-//   };
-// }
