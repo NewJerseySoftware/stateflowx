@@ -16,26 +16,3 @@ export class RelayOpsApp implements RuntimeApp {
     });
   }
 }
-
-// export class RelayOpsApp implements RuntimeApp {
-//   register(runtime: RuntimeContext) {
-//     runtime.prompt(
-//       'relay-ops.prompt',
-//       async (payload: unknown) => {
-//         const { prompt } = payload as { prompt: string };
-//         return runtime.ai.generate(prompt);
-//       }
-//     );
-//   }
-// }
-
-// export class RelayOpsApp implements RuntimeApp {
-//   register(runtime: RuntimeContext) {
-//     runtime.prompt(
-//       'relay-ops.prompt',
-//       async ({ prompt }: { prompt: string }) => {
-//         return runtime.ai.generate(prompt);
-//       }
-//     );
-//   }
-// }

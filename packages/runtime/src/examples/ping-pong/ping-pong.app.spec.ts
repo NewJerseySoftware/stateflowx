@@ -4,7 +4,6 @@ import { JsonRpcProtocol } from '../../core/protocol/json-rpc/json-rpc.protocol.
 import { InMemoryDB } from '../../core/storage/in-memory.db.js';
 import { PingPongApp } from './ping-pong.app.js';
 import { bootstrapRuntime } from '../../core/runtime/bootstrap.js';
-//import { ProviderManager } from '../../core/provider/provider.manager.js';
 
 describe('PingPongApp', () => {
   let server: JSONRPCServer;
@@ -19,9 +18,6 @@ describe('PingPongApp', () => {
 
       protocol: new JsonRpcProtocol(server),
 
-      // transport: new WebSocketTransport({
-      //   send: () => {},
-      // }),
     });
   });
 

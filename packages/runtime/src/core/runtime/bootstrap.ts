@@ -1,4 +1,3 @@
-import { createHttpService } from '../service/providers/http.service.js';
 import { createRuntimeContext } from './create-runtime-context.js';
 
 import { RuntimeApp } from './runtime-app.interface.js';
