@@ -40,18 +40,6 @@ This demonstrates:
 
 ---
 
-## Demo Client Application
-
-Example Angular client implementation:
-
-<https://github.com/bws9000/stateflowx-client-demo>
-
-## Demo Host Application
-
-<https://github.com/bws9000/stateflowx-runtime-host-example>
-
----
-
 ## Basic Runtime Host Example
 
 ```ts
@@ -102,48 +90,6 @@ wss.on('connection', (socket) => {
 console.log(
   'StateFlowX runtime listening on ws://localhost:3000'
 );
-```
-
----
-
-## Example Client Runtime Configuration
-
-```ts
-const config = defineConfig({
-  protocol: jsonRpc(),
-
-  transport: websocket({
-    url: 'ws://localhost:3000',
-  }),
-
-  providers: [
-    gemini({
-      priority: 1,
-    }),
-
-    mockProvider({
-      priority: 2,
-    }),
-  ],
-
-  services: [
-    {
-      name: 'weather',
-      type: 'http',
-      method: 'GET',
-      url: 'https://api.open-meteo.com/v1/forecast?...',
-    },
-  ],
-
-  workflows: [
-    {
-      route: 'weather.execute',
-      service: 'weather',
-      provider: 'default',
-      prompt: 'Format weather data into structured JSON',
-    },
-  ],
-});
 ```
 
 ---
