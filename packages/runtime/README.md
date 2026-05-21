@@ -45,47 +45,56 @@ This demonstrates:
 ```ts
 import 'dotenv/config';
 
-import { WebSocketServer } from 'ws';
-
 import {
   createRuntime,
+  bootstrapRuntime,
   RuntimeInitializeApp,
   GeminiProvider,
+  JsonRpcProtocol,
+  WebSocketTransport,
 } from '@stateflowx/runtime';
 
-const wss = new WebSocketServer({
-  port: 3000,
-});
+import { WebSocketServer } from 'ws';
 
-wss.on('connection', (socket) => {
-  const runtime = createRuntime(
-    {
-      send(data) {
-        socket.send(data);
-      },
-    },
-    {
-      apps: [new RuntimeInitializeApp()],
-
-      providers: [
-        {
-          name: 'default',
-          provider: new GeminiProvider(),
-        },
-      ],
-
-      services: [],
-    }
-  );
-
-  socket.on('message', async (message) => {
-    const payload = JSON.parse(message.toString());
-
-    await runtime.receiveAndSend(payload);
+const server =
+  new WebSocketServer({
+    port: 3000,
   });
-});
 
-console.log('StateFlowX runtime listening on ws://localhost:3000');
+const transport =
+  new WebSocketTransport(server);
+
+const protocol =
+  new JsonRpcProtocol();
+
+const runtime =
+  createRuntime({
+    transport,
+
+    protocol,
+
+    providers: [
+      {
+        name: 'default',
+
+        provider:
+          new GeminiProvider(),
+      },
+    ],
+
+    services: [],
+  });
+
+bootstrapRuntime(
+  [
+    new RuntimeInitializeApp(),
+  ],
+  runtime
+);
+
+console.log(
+  'StateFlowX runtime listening on ws://localhost:3000'
+);
 ```
 
 ---
@@ -93,17 +102,17 @@ console.log('StateFlowX runtime listening on ws://localhost:3000');
 ## Architecture
 
 ```text
-Angular Client
+Client
   ->
-WebSocket
+HTTP / WebSocket
   ->
-JSON-RPC Runtime
+JSON-RPC
   ->
-Dynamic Runtime Initialization
+StateFlowX Runtime
   ->
-Workflow Registration
+Workflow Execution
   ->
-HTTP Services
+Services
   ->
 AI Providers
   ->

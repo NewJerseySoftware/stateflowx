@@ -1,15 +1,17 @@
 # @stateflowx/client
 
-StateFlowX Client is a lightweight client SDK for communicating with StateFlowX runtimes over realtime transports such as JSON-RPC over WebSockets.
+StateFlowX Client is a lightweight SDK for communicating with StateFlowX runtimes over pluggable transports such as JSON-RPC over HTTP and WebSockets.
 
 ## Features
 
 - JSON-RPC client support
-- WebSocket transport integration
-- Realtime communication
+- HTTP transport support
+- WebSocket transport support
+- Transport abstraction
 - Lightweight runtime connectivity
-- Angular-compatible architecture
-- Transport-oriented design
+- Framework-agnostic architecture
+- Runtime workflow execution
+- Dynamic runtime initialization
 
 ## Installation
 
@@ -20,39 +22,77 @@ npm install @stateflowx/client
 ## Basic Example
 
 ```ts
-import { createClient } from '@stateflowx/client';
+import {
+  createClient,
+  defineConfig,
+  jsonRpc,
+  http,
+} from '@stateflowx/client';
 
-const client = createClient({
-  url: 'ws://localhost:3000',
+const config = defineConfig({
+  protocol: jsonRpc(),
+
+  transport: http({
+    url: 'http://localhost:3000/rpc',
+  }),
 });
+
+const client =
+  createClient(config);
+
+await client.connect();
+```
+
+## Websocket Example
+
+```ts
+import {
+  createClient,
+  defineConfig,
+  jsonRpc,
+  websocket,
+} from '@stateflowx/client';
+
+const config = defineConfig({
+  protocol: jsonRpc(),
+
+  transport: websocket({
+    url: 'ws://localhost:3000',
+  }),
+});
+
+const client =
+  createClient(config);
 
 await client.connect();
 ```
 
 ## Purpose
 
-The client package is designed to communicate with StateFlowX runtimes while remaining transport-oriented and lightweight. The architecture is intended to support future transport layers and operational workflow integrations beyond the current JSON-RPC/WebSocket implementation.
+The client package is designed to communicate with StateFlowX runtimes while remaining transport-oriented and lightweight.
+
+The architecture separates:
+
+- transport
+- protocol
+- runtime execution
+- workflow orchestration
+
+allowing different runtime communication strategies without coupling the client to a specific delivery mechanism.
 
 Current areas of focus include:
 
-- Realtime runtime connectivity
-- JSON-RPC transport communication
-- Runtime interaction patterns
+- Runtime workflow execution
+- JSON-RPC communication
 - Transport abstraction
-
-## Roadmap
-
-- Additional transport support
-- REST-based transport experimentation
-- Improved client lifecycle handling
-- Expanded runtime communication patterns
-- Observability and debugging tooling
+- Realtime orchestration
+- AI workflow interaction patterns
 
 ## Demo Application
 
 Example Angular client implementation:
 
-https://github.com/bws9000/stateflowx-client-demo
+<https://github.com/bws9000/stateflowx-client-demo>
 
 ## Example Runtime Configuration
 
@@ -60,8 +100,8 @@ https://github.com/bws9000/stateflowx-client-demo
 const config = defineConfig({
   protocol: jsonRpc(),
 
-  transport: websocket({
-    url: 'ws://localhost:3000',
+  transport: http({
+    url: 'http://localhost:3000/rpc',
   }),
 
   providers: [
@@ -77,8 +117,11 @@ const config = defineConfig({
   services: [
     {
       name: 'weather',
+
       type: 'http',
+
       method: 'GET',
+
       url: 'https://api.open-meteo.com/v1/forecast?...',
     },
   ],
@@ -86,13 +129,27 @@ const config = defineConfig({
   workflows: [
     {
       route: 'weather.execute',
+
       service: 'weather',
+
       provider: 'default',
-      prompt: 'Format weather data into structured JSON',
+
+      prompt:
+        'Format weather data into structured JSON',
     },
   ],
 });
 ```
+
+## Roadmap
+
+- Additional protocol support
+- Additional transport layers
+- Runtime observability tooling
+- Execution tracing
+- Expanded workflow orchestration
+- Provider fallback strategies
+- Streaming execution support
 
 ## Current Status
 
