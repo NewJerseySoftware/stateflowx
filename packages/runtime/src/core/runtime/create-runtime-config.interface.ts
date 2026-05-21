@@ -1,5 +1,5 @@
 import { DB } from '../db.interface.js';
-import { RuntimeApp } from './runtime-app.interface.js';
+
 import { ProviderConfig } from '../provider/provider.config.interface.js';
 import { ServiceConfig } from '../service/service-config.interface.js';
 import { Transport } from '../transport/transport.interface.js';

@@ -43,7 +43,7 @@ export function createClient(config: StateFlowXConfig): ClientApi {
 
         const text = await response.text();
 
-        console.log('HTTP RAW RESPONSE:', text);
+        //console.log('HTTP RAW RESPONSE:', text);
 
         if (!text) {
           throw new Error('Empty HTTP response from StateFlowX runtime');
@@ -51,7 +51,7 @@ export function createClient(config: StateFlowXConfig): ClientApi {
 
         const json = JSON.parse(text);
 
-        console.log('HTTP JSON RESPONSE:', json);
+        //console.log('HTTP JSON RESPONSE:', json);
 
         if (json.error) {
           throw new Error(json.error.message ?? 'JSON-RPC error');

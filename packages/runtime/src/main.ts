@@ -2,9 +2,6 @@ import 'dotenv/config';
 
 import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
-
-import { JSONRPCServer } from 'json-rpc-2.0';
-
 import { AppModule } from './app.module.js';
 
 import {
@@ -12,10 +9,7 @@ import {
   bootstrapRuntime,
   RuntimeInitializeApp,
   GeminiProvider,
-  WebSocketTransport,
 } from './index.js';
-
-import EventsGateway from './core/transport/ws/events.gateway.js';
 
 import { JsonRpcProtocol } from './core/protocol/json-rpc/json-rpc.protocol.js';
 import { HttpTransport } from './core/transport/http/http.transport.js';
@@ -31,9 +25,6 @@ async function bootstrap() {
 
   await app.listen(3000);
 
-  const gateway = app.get(EventsGateway);
-
-  //const transport = new WebSocketTransport(gateway.server);
   const transport = app.get(HttpTransport);
   const protocol = new JsonRpcProtocol();
 
