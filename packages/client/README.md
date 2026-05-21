@@ -33,7 +33,6 @@ await client.connect();
 
 The client package is designed to communicate with StateFlowX runtimes while remaining transport-oriented and lightweight. The architecture is intended to support future transport layers and operational workflow integrations beyond the current JSON-RPC/WebSocket implementation.
 
-
 Current areas of focus include:
 
 - Realtime runtime connectivity

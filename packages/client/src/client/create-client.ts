@@ -12,85 +12,92 @@ export interface ClientApi {
 }
 
 export function createClient(config: StateFlowXConfig): ClientApi {
-  const socket = new WebSocket(config.transport.url);
+  if (config.protocol.type !== 'json-rpc') {
+    throw new Error(`Unsupported protocol: ${config.protocol.type}`);
+  }
 
-  const connected = new Promise<void>((resolve, reject) => {
-    socket.onopen = () => resolve();
+  if (config.transport.type === 'http') {
+    return {
+      async connect() {
+        return Promise.resolve();
+      },
 
-    socket.onerror = (err) => reject(err);
-  });
+      async request<TResponse, TParams = unknown>(
+        method: string,
+        params?: TParams
+      ): Promise<TResponse> {
+        const response = await fetch(config.transport.url, {
+          method: 'POST',
 
-  const rpc = new JSONRPCClient((request) => {
-    socket.send(JSON.stringify(request));
+          headers: {
+            'Content-Type': 'application/json',
+          },
 
-    return Promise.resolve();
-  });
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method,
+            params,
+            id: crypto.randomUUID(),
+          }),
+        });
 
-  socket.onmessage = (event: MessageEvent<string>) => {
-    const message = JSON.parse(event.data) as
-      | JSONRPCResponse
-      | JSONRPCResponse[];
+        const text = await response.text();
 
-    rpc.receive(message);
-  };
+        console.log('HTTP RAW RESPONSE:', text);
 
-  return {
-    connect() {
-      return connected;
-    },
+        if (!text) {
+          throw new Error('Empty HTTP response from StateFlowX runtime');
+        }
 
-    async request<TResponse, TParams = unknown>(
-      method: string,
-      params?: TParams
-    ): Promise<TResponse> {
-      return rpc.request(method, params) as Promise<TResponse>;
-    },
-  };
+        const json = JSON.parse(text);
+
+        console.log('HTTP JSON RESPONSE:', json);
+
+        if (json.error) {
+          throw new Error(json.error.message ?? 'JSON-RPC error');
+        }
+
+        return json.result as TResponse;
+      },
+    };
+  }
+
+  if (config.transport.type === 'websocket') {
+    const socket = new WebSocket(config.transport.url);
+
+    const connected = new Promise<void>((resolve, reject) => {
+      socket.onopen = () => resolve();
+
+      socket.onerror = (err) => reject(err);
+    });
+
+    const rpc = new JSONRPCClient((request) => {
+      socket.send(JSON.stringify(request));
+
+      return Promise.resolve();
+    });
+
+    socket.onmessage = (event: MessageEvent<string>) => {
+      const message = JSON.parse(event.data) as
+        | JSONRPCResponse
+        | JSONRPCResponse[];
+
+      rpc.receive(message);
+    };
+
+    return {
+      connect() {
+        return connected;
+      },
+
+      async request<TResponse, TParams = unknown>(
+        method: string,
+        params?: TParams
+      ): Promise<TResponse> {
+        return rpc.request(method, params) as Promise<TResponse>;
+      },
+    };
+  }
+
+  throw new Error(`Unsupported transport: ${config.transport.type}`);
 }
-
-
-// return {
-//   connect() {
-//     return connected;
-//   },
-//   async request<TResponse, TParams = unknown>(
-//     method: string,
-//     params?: TParams
-//   ): Promise<TResponse> {
-//     return rpc.request(method, params) as Promise<TResponse>;
-//   },
-// };
-//}
-
-// import { JSONRPCClient } from 'json-rpc-2.0';
-
-// export interface ClientConfig {
-//   transport: {
-//     url: string;
-//   };
-// }
-
-// export interface ClientRequest {
-//   method: string;
-//   params?: unknown;
-// }
-
-// export function createClient(config: ClientConfig) {
-//   const socket = new WebSocket(config.transport.url);
-
-//   const rpc = new JSONRPCClient((request) => {
-//     socket.send(JSON.stringify(request));
-
-//     return Promise.resolve();
-//   });
-
-//   socket.onmessage = (event: MessageEvent<string>) => {
-//     rpc.receive(JSON.parse(event.data));
-//   };
-
-//   return {
-//     request(method: string, params?: unknown) {
-//       return rpc.request(method, params);
-//     },
-//   };
-// }

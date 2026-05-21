@@ -65,9 +65,7 @@ wss.on('connection', (socket) => {
       },
     },
     {
-      apps: [
-        new RuntimeInitializeApp(),
-      ],
+      apps: [new RuntimeInitializeApp()],
 
       providers: [
         {
@@ -87,9 +85,7 @@ wss.on('connection', (socket) => {
   });
 });
 
-console.log(
-  'StateFlowX runtime listening on ws://localhost:3000'
-);
+console.log('StateFlowX runtime listening on ws://localhost:3000');
 ```
 
 ---

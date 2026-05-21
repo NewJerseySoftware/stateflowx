@@ -1,9 +1,10 @@
-export interface StateFlowXConfig {
-  protocol: unknown;
+import { ClientProtocol } from '../protocol/json-rpc.factory.js';
+import { TransportConfig } from '../transport/transport-config.interface.js';
 
-  transport: {
-    url: string;
-  };
+export interface StateFlowXConfig {
+  protocol: ClientProtocol;
+
+  transport: TransportConfig;
 
   providers?: unknown[];
 

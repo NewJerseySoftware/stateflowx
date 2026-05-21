@@ -1,6 +1,6 @@
 {
   "name": "@stateflowx/runtime",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Realtime orchestration runtime framework for AI workflows and distributed systems.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
   "repository": {
@@ -41,7 +41,6 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "format": "prettier --write \"src/**/*.ts\"",
     "test": "jest --passWithNoTests"
   },
   "dependencies": {

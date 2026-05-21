@@ -1,4 +1,4 @@
 export interface IWSClient {
-    id:string;
-    timestamp:string;
+  id: string;
+  timestamp: string;
 }

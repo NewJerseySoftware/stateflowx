@@ -12,5 +12,4 @@ export interface HttpServiceDefinition {
   body?: unknown;
 }
 
-export type ServiceDefinition =
-  | HttpServiceDefinition;
+export type ServiceDefinition = HttpServiceDefinition;

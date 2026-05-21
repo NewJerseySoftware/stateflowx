@@ -12,7 +12,8 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "format": "prettier --write \"src/**/*.ts\"",
+    "format": "prettier \"packages/**/*.{ts,tsx,json,html,scss,css,md}\" --write",
+    "format:check": "prettier \"packages/**/*.{ts,tsx,json,html,scss,css,md}\" --check",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch --passWithNoTests",
     "test:cov": "jest --coverage --passWithNoTests",
@@ -60,7 +61,7 @@
     "source-map-support": "^0.5.20",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "4.1.1",
-    "typescript": "^6.0.3"
+    "typescript": "^5.7.3"
   },
   "jest": {
     "moduleFileExtensions": [

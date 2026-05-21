@@ -9,6 +9,7 @@
     "outDir": "./dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

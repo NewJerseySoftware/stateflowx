@@ -4,8 +4,7 @@ export interface WebSocketTransportOptions {
   url: string;
 }
 
-export interface WebSocketTransportConfig
-  extends TransportConfig {
+export interface WebSocketTransportConfig extends TransportConfig {
   type: 'websocket';
   url: string;
 }

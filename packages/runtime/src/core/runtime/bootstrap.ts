@@ -4,19 +4,9 @@ import { RuntimeApp } from './runtime-app.interface.js';
 
 import { RuntimeConfig } from './runtime-config.interface.js';
 
-
-
-export function bootstrapRuntime(
-  apps: RuntimeApp[],
-  config: RuntimeConfig
-) {
-
-
+export function bootstrapRuntime(apps: RuntimeApp[], config: RuntimeConfig) {
   apps.forEach((app) => {
-    const context = createRuntimeContext(
-      app,
-      config
-    );
+    const context = createRuntimeContext(app, config);
 
     app.register(context);
   });

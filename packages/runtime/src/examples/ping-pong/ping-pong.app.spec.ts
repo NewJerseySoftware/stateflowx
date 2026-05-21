@@ -17,7 +17,6 @@ describe('PingPongApp', () => {
       db: new InMemoryDB(),
 
       protocol: new JsonRpcProtocol(server),
-
     });
   });
 
