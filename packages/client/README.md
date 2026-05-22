@@ -151,6 +151,11 @@ const config = defineConfig({
 - Provider fallback strategies
 - Streaming execution support
 
+## Related Demos
+
+- React Client Demo:
+  <https://github.com/bws9000/react-stateflowx-demo>
+
 ## Current Status
 
 StateFlowX Client is currently experimental and under active development.
