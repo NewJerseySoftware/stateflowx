@@ -2,7 +2,9 @@ import 'dotenv/config';
 
 import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
-import { AppModule } from './app.module.js';
+
+import { WebSocketRuntimeModule }
+  from './websocket-runtime.module.js';
 
 import {
   createRuntime,
@@ -15,7 +17,9 @@ import { JsonRpcProtocol } from './core/protocol/json-rpc/json-rpc.protocol.js';
 import { HttpTransport } from './core/transport/http/http.transport.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(WebSocketRuntimeModule, {
+    cors: true,
+  });
 
   app.useWebSocketAdapter(new WsAdapter(app));
 
