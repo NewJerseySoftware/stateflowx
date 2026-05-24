@@ -42,17 +42,11 @@ export function createClient(config: StateFlowXConfig): ClientApi {
         });
 
         const text = await response.text();
-
-        //console.log('HTTP RAW RESPONSE:', text);
-
         if (!text) {
           throw new Error('Empty HTTP response from StateFlowX runtime');
         }
 
         const json = JSON.parse(text);
-
-        //console.log('HTTP JSON RESPONSE:', json);
-
         if (json.error) {
           throw new Error(json.error.message ?? 'JSON-RPC error');
         }
@@ -67,13 +61,11 @@ export function createClient(config: StateFlowXConfig): ClientApi {
 
     const connected = new Promise<void>((resolve, reject) => {
       socket.onopen = () => resolve();
-
       socket.onerror = (err) => reject(err);
     });
 
     const rpc = new JSONRPCClient((request) => {
       socket.send(JSON.stringify(request));
-
       return Promise.resolve();
     });
 

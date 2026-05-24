@@ -16,8 +16,6 @@ export function createRuntime(
   config.transport.onMessage(async (clientId, payload) => {
     const response = await config.protocol.receive(payload);
 
-    console.log('PROTOCOL RESPONSE:', response);
-
     //
     // Push-based transports
     // (websocket, mqtt, tcp)
