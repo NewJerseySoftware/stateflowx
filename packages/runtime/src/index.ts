@@ -6,3 +6,4 @@ export * from './core/provider/providers/gemini.provider.js';
 export * from './core/transport/http/http.transport.js';
 export * from './core/protocol/json-rpc/json-rpc.protocol.js';
 export * from './http/bootstrap-http-runtime.js';
+export * from './core/events/dispatchers/ws/websocket-event-dispatcher.js';
