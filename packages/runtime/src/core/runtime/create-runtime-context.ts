@@ -6,6 +6,7 @@ import { RuntimeConfig } from './runtime-config.interface.js';
 
 import { ServiceManager } from '../service/service.manager.js';
 import { ProviderManager } from '../provider/provider.manager.js';
+import { RuntimeEventBus } from '../events/runtime-event-bus.js';
 
 export function createRuntimeContext(
   app: RuntimeApp,
@@ -26,6 +27,8 @@ export function createRuntimeContext(
     ai: providerManager,
 
     services: serviceManager,
+
+    events: config.events!, //ts can't fully infer this, but im ensure it's set in bootstrapRuntime
 
     prompt(route: string, handler: Function) {
       config.protocol?.addMethod(route, handler);

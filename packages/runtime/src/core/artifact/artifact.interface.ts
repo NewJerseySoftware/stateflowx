@@ -1,13 +1,13 @@
 export interface Artifact {
-    id: string;
+  id: string;
 
-    type: string;
+  type: string;
 
-    filename?: string;
+  filename?: string;
 
-    mimeType?: string;
+  mimeType?: string;
 
-    metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 
-    createdAt: number;
+  createdAt: number;
 }

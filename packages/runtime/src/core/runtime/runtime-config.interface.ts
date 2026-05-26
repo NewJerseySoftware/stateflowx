@@ -6,7 +6,6 @@ import { ServiceConfig } from '../service/service-config.interface.js';
 import { Transport } from '../transport/transport.interface.js';
 
 export interface RuntimeConfig {
-
   transport: Transport;
 
   protocol: Protocol;

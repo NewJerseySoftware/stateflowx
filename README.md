@@ -1,54 +1,181 @@
-# StateFlowX
+# @stateflowx/runtime
 
-StateFlowX is a lightweight orchestration runtime for building operational workflows, realtime systems, and AI-driven execution pipelines using pluggable transports and providers.
-
-## Current Status
-
-StateFlowX is an experimental runtime currently focused on:
-- runtime composition
-- transport abstraction
-- provider orchestration
-- operational workflows
-- realtime execution systems
-
-The project is under active development and APIs may evolve.
+StateFlowX Runtime is a lightweight orchestration runtime for building operational workflows, realtime systems, and AI-driven execution pipelines using pluggable transports, providers, and realtime runtime events.
 
 ## Features
 
 - JSON-RPC over WebSockets
-- Modular runtime architecture
-- Pluggable provider system
-- Realtime execution pipelines
-- Transport abstraction
+- Runtime composition
+- Runtime event streaming
+- Workflow lifecycle events
+- Realtime observability foundation
+- Dynamic workflow registration
+- Pluggable provider architecture
 - Service orchestration foundation
-- Angular-compatible client SDK
+- Realtime execution flow
+- NestJS-based runtime infrastructure
 
-## Packages
+---
 
-- `@stateflowx/runtime`
-- `@stateflowx/client`
+## Installation
 
-## Example
-
-```ts
-const runtime = createRuntime({
-  providers: [
-    gemini(),
-    mockProvider(),
-  ],
-});
+```bash
+npm install @stateflowx/runtime
 ```
 
-## Inspiration
+---
 
-StateFlowX evolved from realtime multiplayer experiments, websocket orchestration problems, and operational workflow systems that became difficult to scale cleanly over time.
+## Runtime Host Example
 
-The framework gradually evolved into a reusable runtime architecture focused on transport abstraction, execution flow, and operational orchestration.
+Minimal external runtime host example:
 
-## Roadmap
+<https://github.com/bws9000/stateflowx-runtime-host-example>
 
-- Provider failover/retries
-- Workflow scheduling
-- Additional transports (REST, others)
-- Observability tooling
-- Expanded orchestration/runtime capabilities
+This demonstrates:
+
+- external npm package consumption
+- WebSocket runtime hosting
+- JSON-RPC transport
+- dynamic runtime initialization
+- workflow execution
+- runtime event streaming
+- Gemini provider integration
+- remote workflow execution
+
+---
+
+## Basic Runtime Host Example
+
+```ts
+import 'dotenv/config';
+
+import {
+  createRuntime,
+  bootstrapRuntime,
+  RuntimeInitializeApp,
+  GeminiProvider,
+  JsonRpcProtocol,
+  WebSocketTransport,
+  WebSocketEventDispatcher,
+} from '@stateflowx/runtime';
+
+import { WebSocketServer } from 'ws';
+
+const server = new WebSocketServer({
+  port: 3000,
+});
+
+const transport =
+  new WebSocketTransport(server);
+
+const protocol =
+  new JsonRpcProtocol();
+
+const runtime = createRuntime({
+  transport,
+
+  protocol,
+
+  providers: [
+    {
+      name: 'default',
+
+      provider:
+        new GeminiProvider(),
+    },
+  ],
+
+  services: [],
+});
+
+//
+// Realtime runtime event dispatcher
+//
+const dispatcher =
+  new WebSocketEventDispatcher(
+    server
+  );
+
+runtime.events.on(
+  '*',
+
+  async (event) => {
+    await dispatcher.dispatch(
+      event
+    );
+  }
+);
+
+bootstrapRuntime(
+  [new RuntimeInitializeApp()],
+
+  runtime
+);
+
+console.log(
+  'StateFlowX runtime listening on ws://localhost:3000'
+);
+```
+
+---
+
+## Architecture
+
+```text
+Client
+  ->
+WebSocket Transport
+  ->
+JSON-RPC Protocol
+  ->
+StateFlowX Runtime
+  ->
+Workflow Execution
+  ->
+Services / Providers
+  ->
+Runtime Events
+  ->
+Realtime Client Observability
+```
+
+---
+
+## Runtime Event Flow
+
+```text
+workflow.started
+  ->
+service.execute
+  ->
+provider.generate
+  ->
+workflow.completed
+  ->
+realtime websocket event stream
+```
+
+---
+
+## Current Transport Support
+
+StateFlowX V1 currently standardizes on:
+
+- JSON-RPC
+- WebSocket transport
+- realtime runtime event streaming
+
+Additional transport and protocol adapters may be explored in future releases.
+
+---
+
+## Related Demos
+
+- React Client Demo:
+  <https://github.com/bws9000/react-stateflowx-demo>
+
+---
+
+## Current Status
+
+StateFlowX Runtime is currently experimental and under active development.

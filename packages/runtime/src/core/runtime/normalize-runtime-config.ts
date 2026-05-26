@@ -1,45 +1,33 @@
-import { CreateRuntimeConfig }
-    from './create-runtime-config.interface.js';
+import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
 
-import { RuntimeConfig }
-    from './runtime-config.interface.js';
+import { RuntimeConfig } from './runtime-config.interface.js';
 
-import { InMemoryDB }
-    from '../storage/in-memory.db.js';
+import { InMemoryDB } from '../storage/in-memory.db.js';
 
 export function normalizeRuntimeConfig(
-    config: CreateRuntimeConfig,
+  config: CreateRuntimeConfig
 ): RuntimeConfig {
+  return {
+    db: config.db ?? new InMemoryDB(),
 
-    return {
+    transport: config.transport,
 
-        db: config.db ?? new InMemoryDB(),
+    protocol: config.protocol,
 
-        transport: config.transport,
+    providers: config.providers,
 
-        protocol: config.protocol,
+    services: config.services,
 
-        providers: config.providers,
+    execution: {
+      enabled: config.execution?.enabled ?? false,
 
-        services: config.services,
+      events: {
+        enabled: config.execution?.events?.enabled ?? false,
+      },
 
-        execution: {
-            enabled:
-                config.execution?.enabled ?? false,
-
-            events: {
-                enabled:
-                    config.execution?.events?.enabled
-                    ?? false,
-            },
-
-            artifacts: {
-                enabled:
-                    config.execution?.artifacts?.enabled
-                    ?? false,
-            },
-        },
-
-    };
-
+      artifacts: {
+        enabled: config.execution?.artifacts?.enabled ?? false,
+      },
+    },
+  };
 }

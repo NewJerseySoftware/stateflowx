@@ -15,6 +15,8 @@ export interface RuntimeContext {
 
   protocol: Protocol;
 
+  events: RuntimeEventBus;
+
   ai: ProviderManager;
 
   services: ServiceManager;

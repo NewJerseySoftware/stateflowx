@@ -3,6 +3,7 @@ import { RuntimeApp } from '../../core/runtime/runtime-app.interface.js';
 import { RuntimeContext } from '../../core/runtime/runtime-context.interface.js';
 
 import { logger } from '../../core/logger/logger.js';
+
 import { createHttpService } from '../service/providers/http.service.js';
 
 export class RuntimeInitializeApp implements RuntimeApp {
@@ -69,22 +70,56 @@ export class RuntimeInitializeApp implements RuntimeApp {
             workflow.route,
 
             async () => {
-              const service = runtime.services.get(workflow.service);
+              runtime.events.emit({
+                type: 'workflow.started',
 
-              if (!service) {
-                throw new Error(`Service not found: ${workflow.service}`);
+                metadata: {
+                  workflow: workflow.route,
+                },
+              });
+
+              try {
+                const service = runtime.services.get(workflow.service);
+
+                if (!service) {
+                  throw new Error(`Service not found: ${workflow.service}`);
+                }
+
+                const data = await service.execute();
+
+                const enhancedPrompt = `
+                      ${workflow.prompt}
+
+                      DATA:
+                      ${JSON.stringify(data)}
+                      `;
+
+                const result = await runtime.ai.generate(enhancedPrompt);
+
+                runtime.events.emit({
+                  type: 'workflow.completed',
+
+                  metadata: {
+                    workflow: workflow.route,
+                  },
+                });
+
+                return result;
+              } catch (err) {
+                runtime.events.emit({
+                  type: 'workflow.failed',
+
+                  metadata: {
+                    workflow: workflow.route,
+                  },
+
+                  payload: {
+                    error: String(err),
+                  },
+                });
+
+                throw err;
               }
-
-              const data = await service.execute();
-
-              const enhancedPrompt = `
-              ${workflow.prompt}
-
-                DATA:
-                ${JSON.stringify(data)}
-                `;
-
-              return runtime.ai.generate(enhancedPrompt);
             }
           );
 

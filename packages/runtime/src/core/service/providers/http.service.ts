@@ -27,6 +27,27 @@ export function createHttpService(config: HttpServiceConfig) {
     name: config.name,
 
     async execute() {
+      //
+      // MOCK SERVICES
+      //
+      if (config.url === 'mock://weather') {
+        logger.info(
+          {
+            service: config.name,
+          },
+          'Executing mock weather service'
+        );
+
+        return {
+          current_weather: {
+            temperature: 72,
+            weathercode: 1,
+            city: 'Newark',
+            condition: 'Clear',
+          },
+        };
+      }
+
       const response = await fetch(config.url, {
         method: config.method ?? 'GET',
 

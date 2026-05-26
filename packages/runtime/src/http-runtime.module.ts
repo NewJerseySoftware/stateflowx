@@ -5,12 +5,8 @@ import { HttpTransport } from './core/transport/http/http.transport.js';
 import { HttpRpcController } from './core/transport/http/http.controller.js';
 
 @Module({
-    providers: [
-        HttpTransport,
-    ],
+  providers: [HttpTransport],
 
-    controllers: [
-        HttpRpcController,
-    ],
+  controllers: [HttpRpcController],
 })
-export class HttpRuntimeModule { }
+export class HttpRuntimeModule {}

@@ -9,9 +9,19 @@ export interface ClientApi {
     method: string,
     params?: TParams
   ): Promise<TResponse>;
+
+  onRuntimeEvent(handler: (event: unknown) => void): void;
 }
 
 export function createClient(config: StateFlowXConfig): ClientApi {
+  // StateFlowX currently standardizes on JSON-RPC
+  // as the runtime protocol layer.
+  //
+  // future protocol adapters MAY exist later
+  // (gRPC, REST, custom transports, etc),
+  // but V1 intentionally uses JSON-RPC
+  // for request/response protocol
+
   if (config.protocol.type !== 'json-rpc') {
     throw new Error(`Unsupported protocol: ${config.protocol.type}`);
   }
@@ -42,51 +52,116 @@ export function createClient(config: StateFlowXConfig): ClientApi {
         });
 
         const text = await response.text();
+
         if (!text) {
           throw new Error('Empty HTTP response from StateFlowX runtime');
         }
 
         const json = JSON.parse(text);
+
         if (json.error) {
           throw new Error(json.error.message ?? 'JSON-RPC error');
         }
 
         return json.result as TResponse;
       },
+
+      onRuntimeEvent(): void {
+        throw new Error(
+          'Runtime events are not supported over HTTP transport.'
+        );
+      },
     };
   }
 
   if (config.transport.type === 'websocket') {
-    const socket = new WebSocket(config.transport.url);
+    const runtimeEventHandlers: Array<(event: unknown) => void> = [];
 
-    const connected = new Promise<void>((resolve, reject) => {
-      socket.onopen = () => resolve();
-      socket.onerror = (err) => reject(err);
-    });
+    let socket: WebSocket | null = null;
 
-    const rpc = new JSONRPCClient((request) => {
-      socket.send(JSON.stringify(request));
-      return Promise.resolve();
-    });
+    let rpc: JSONRPCClient | null = null;
 
-    socket.onmessage = (event: MessageEvent<string>) => {
-      const message = JSON.parse(event.data) as
-        | JSONRPCResponse
-        | JSONRPCResponse[];
-
-      rpc.receive(message);
-    };
+    let connected = false;
 
     return {
-      connect() {
-        return connected;
+      async connect(): Promise<void> {
+        if (connected) {
+          return;
+        }
+
+        socket = new WebSocket(config.transport.url);
+
+        await new Promise<void>((resolve, reject) => {
+          socket!.addEventListener('open', () => {
+            connected = true;
+
+            resolve();
+          });
+
+          socket!.addEventListener('error', (err) => {
+            reject(err);
+          });
+        });
+
+        rpc = new JSONRPCClient((request) => {
+          if (!socket || socket.readyState !== WebSocket.OPEN) {
+            throw new Error('WebSocket is not connected');
+          }
+
+          socket.send(JSON.stringify(request));
+
+          return Promise.resolve();
+        });
+
+        socket.addEventListener('message', (event: MessageEvent<string>) => {
+          const parsed = JSON.parse(event.data);
+
+          // runtime event stream
+          if (
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            'type' in parsed &&
+            parsed.type === 'runtime.event'
+          ) {
+            runtimeEventHandlers.forEach((handler) => {
+              handler(
+                (
+                  parsed as {
+                    payload: unknown;
+                  }
+                ).payload
+              );
+            });
+
+            return;
+          }
+
+          // JSON-RPC lifecycle
+          rpc!.receive(parsed as JSONRPCResponse | JSONRPCResponse[]);
+        });
+
+        socket.addEventListener('close', () => {
+          connected = false;
+
+          socket = null;
+
+          rpc = null;
+        });
       },
 
       async request<TResponse, TParams = unknown>(
         method: string,
         params?: TParams
       ): Promise<TResponse> {
+        if (!rpc) {
+          throw new Error('Client is not connected. Call connect() first.');
+        }
+
         return rpc.request(method, params) as Promise<TResponse>;
+      },
+
+      onRuntimeEvent(handler: (event: unknown) => void): void {
+        runtimeEventHandlers.push(handler);
       },
     };
   }

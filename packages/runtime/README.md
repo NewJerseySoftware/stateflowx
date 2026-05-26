@@ -1,14 +1,16 @@
 # @stateflowx/runtime
 
-StateFlowX Runtime is a lightweight orchestration runtime for building operational workflows, realtime systems, and AI-driven execution pipelines using pluggable transports and providers.
+StateFlowX Runtime is a lightweight orchestration runtime for building operational workflows, realtime systems, and AI-driven execution pipelines using pluggable transports, providers, and realtime runtime events.
 
 ## Features
 
 - JSON-RPC over WebSockets
 - Runtime composition
-- Pluggable provider architecture
-- Transport abstraction
+- Runtime event streaming
+- Workflow lifecycle events
+- Realtime observability foundation
 - Dynamic workflow registration
+- Pluggable provider architecture
 - Service orchestration foundation
 - Realtime execution flow
 - NestJS-based runtime infrastructure
@@ -35,6 +37,8 @@ This demonstrates:
 - WebSocket runtime hosting
 - JSON-RPC transport
 - dynamic runtime initialization
+- workflow execution
+- runtime event streaming
 - Gemini provider integration
 - remote workflow execution
 
@@ -52,14 +56,14 @@ import {
   GeminiProvider,
   JsonRpcProtocol,
   WebSocketTransport,
+  WebSocketEventDispatcher,
 } from '@stateflowx/runtime';
 
 import { WebSocketServer } from 'ws';
 
-const server =
-  new WebSocketServer({
-    port: 3000,
-  });
+const server = new WebSocketServer({
+  port: 3000,
+});
 
 const transport =
   new WebSocketTransport(server);
@@ -67,28 +71,44 @@ const transport =
 const protocol =
   new JsonRpcProtocol();
 
-const runtime =
-  createRuntime({
-    transport,
+const runtime = createRuntime({
+  transport,
 
-    protocol,
+  protocol,
 
-    providers: [
-      {
-        name: 'default',
+  providers: [
+    {
+      name: 'default',
 
-        provider:
-          new GeminiProvider(),
-      },
-    ],
+      provider:
+        new GeminiProvider(),
+    },
+  ],
 
-    services: [],
-  });
+  services: [],
+});
+
+//
+// Realtime runtime event dispatcher
+//
+const dispatcher =
+  new WebSocketEventDispatcher(
+    server
+  );
+
+runtime.events.on(
+  '*',
+
+  async (event) => {
+    await dispatcher.dispatch(
+      event
+    );
+  }
+);
 
 bootstrapRuntime(
-  [
-    new RuntimeInitializeApp(),
-  ],
+  [new RuntimeInitializeApp()],
+
   runtime
 );
 
@@ -104,20 +124,48 @@ console.log(
 ```text
 Client
   ->
-HTTP / WebSocket
+WebSocket Transport
   ->
-JSON-RPC
+JSON-RPC Protocol
   ->
 StateFlowX Runtime
   ->
 Workflow Execution
   ->
-Services
+Services / Providers
   ->
-AI Providers
+Runtime Events
   ->
-Structured Response
+Realtime Client Observability
 ```
+
+---
+
+## Runtime Event Flow
+
+```text
+workflow.started
+  ->
+service.execute
+  ->
+provider.generate
+  ->
+workflow.completed
+  ->
+realtime websocket event stream
+```
+
+---
+
+## Current Transport Support
+
+StateFlowX V1 currently standardizes on:
+
+- JSON-RPC
+- WebSocket transport
+- realtime runtime event streaming
+
+Additional transport and protocol adapters may be explored in future releases.
 
 ---
 
@@ -125,6 +173,8 @@ Structured Response
 
 - React Client Demo:
   <https://github.com/bws9000/react-stateflowx-demo>
+
+---
 
 ## Current Status
 

@@ -5,6 +5,7 @@ import { RawData, WebSocketServer } from 'ws';
 import { Transport } from '../transport.interface.js';
 
 import { IWebSocket } from './ws.interface.js';
+import { logger } from '../../logger/logger.js';
 
 export class WebSocketTransport implements Transport {
   private clients = new Map<string, IWebSocket>();
@@ -58,7 +59,12 @@ export class WebSocketTransport implements Transport {
 
           await this.messageHandler(client.id, payload);
         } catch (err) {
-          console.error(err);
+          logger.error({
+            type: 'transport.error',
+            transport: 'websocket',
+            clientId: client.id,
+            error: err,
+          });
         }
       }
     );

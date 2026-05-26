@@ -12,133 +12,133 @@ import { HttpTransport } from './core/transport/http/http.transport.js';
 import { RuntimeInitializeApp } from './core/runtime/runtime-app-init.js';
 
 describe('Runtime HTTP Transport', () => {
-    it('should initialize and execute workflow over HTTP transport', async () => {
-        const transport = new HttpTransport();
+  it('should initialize and execute workflow over HTTP transport', async () => {
+    const transport = new HttpTransport();
 
-        const protocol = new JsonRpcProtocol(new JSONRPCServer());
+    const protocol = new JsonRpcProtocol(new JSONRPCServer());
 
-        const runtime = createRuntime({
-            transport,
+    const runtime = createRuntime({
+      transport,
 
-            protocol,
+      protocol,
 
-            providers: [],
+      providers: [],
 
-            services: [],
-        });
-
-        bootstrapRuntime([new RuntimeInitializeApp()], runtime);
-
-        //
-        // Initialize runtime
-        //
-        const initializeResponse = await transport.handleRequest({
-            jsonrpc: '2.0',
-
-            method: 'runtime.initialize',
-
-            params: {
-                services: [
-                    {
-                        name: 'ping',
-
-                        type: 'http',
-
-                        method: 'GET',
-
-                        url: 'https://example.com',
-                    },
-                ],
-
-                workflows: [
-                    {
-                        route: 'ping.execute',
-
-                        service: 'ping',
-
-                        provider: 'default',
-
-                        prompt: 'Return pong',
-                    },
-                ],
-            },
-
-            id: 1,
-        });
-
-        expect(initializeResponse).toEqual({
-            jsonrpc: '2.0',
-
-            id: 1,
-
-            result: {
-                success: true,
-            },
-        });
+      services: [],
     });
 
-    it('should initialize and execute workflow over HTTP transport', async () => {
-        const transport = new HttpTransport();
+    bootstrapRuntime([new RuntimeInitializeApp()], runtime);
 
-        const protocol = new JsonRpcProtocol(new JSONRPCServer());
+    //
+    // Initialize runtime
+    //
+    const initializeResponse = await transport.handleRequest({
+      jsonrpc: '2.0',
 
-        const runtime = createRuntime({
-            transport,
+      method: 'runtime.initialize',
 
-            protocol,
+      params: {
+        services: [
+          {
+            name: 'ping',
 
-            providers: [],
+            type: 'http',
 
-            services: [],
-        });
+            method: 'GET',
 
-        bootstrapRuntime([new RuntimeInitializeApp()], runtime);
+            url: 'https://example.com',
+          },
+        ],
 
-        //
-        // Initialize runtime
-        //
-        const initializeResponse = await transport.handleRequest({
-            jsonrpc: '2.0',
+        workflows: [
+          {
+            route: 'ping.execute',
 
-            method: 'runtime.initialize',
+            service: 'ping',
 
-            params: {
-                services: [
-                    {
-                        name: 'ping',
+            provider: 'default',
 
-                        type: 'http',
+            prompt: 'Return pong',
+          },
+        ],
+      },
 
-                        method: 'GET',
-
-                        url: 'https://example.com',
-                    },
-                ],
-
-                workflows: [
-                    {
-                        route: 'ping.execute',
-
-                        service: 'ping',
-
-                        provider: 'default',
-
-                        prompt: 'Return pong',
-                    },
-                ],
-            },
-
-            id: 1,
-        });
-
-        expect(initializeResponse).toEqual({
-            jsonrpc: '2.0',
-
-            id: 1,
-
-            result: {
-                success: true,
-            },
-        });
+      id: 1,
     });
+
+    expect(initializeResponse).toEqual({
+      jsonrpc: '2.0',
+
+      id: 1,
+
+      result: {
+        success: true,
+      },
+    });
+  });
+
+  it('should initialize and execute workflow over HTTP transport', async () => {
+    const transport = new HttpTransport();
+
+    const protocol = new JsonRpcProtocol(new JSONRPCServer());
+
+    const runtime = createRuntime({
+      transport,
+
+      protocol,
+
+      providers: [],
+
+      services: [],
+    });
+
+    bootstrapRuntime([new RuntimeInitializeApp()], runtime);
+
+    //
+    // Initialize runtime
+    //
+    const initializeResponse = await transport.handleRequest({
+      jsonrpc: '2.0',
+
+      method: 'runtime.initialize',
+
+      params: {
+        services: [
+          {
+            name: 'ping',
+
+            type: 'http',
+
+            method: 'GET',
+
+            url: 'https://example.com',
+          },
+        ],
+
+        workflows: [
+          {
+            route: 'ping.execute',
+
+            service: 'ping',
+
+            provider: 'default',
+
+            prompt: 'Return pong',
+          },
+        ],
+      },
+
+      id: 1,
+    });
+
+    expect(initializeResponse).toEqual({
+      jsonrpc: '2.0',
+
+      id: 1,
+
+      result: {
+        success: true,
+      },
+    });
+  });
 });

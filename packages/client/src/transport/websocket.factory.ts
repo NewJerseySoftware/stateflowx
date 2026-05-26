@@ -17,8 +17,3 @@ export function websocket(
     ...options,
   };
 }
-// export function websocket(options: WebSocketTransportConfig): WebSocketTransportConfig {
-//   return {
-//     ...options,
-//   };
-// }
