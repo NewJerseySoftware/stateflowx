@@ -1,4 +1,5 @@
 import { DB } from '../db.interface.js';
+import { RuntimeEventBus } from '../events/runtime-event-bus.js';
 import { Protocol } from '../protocol/protocol.interface.js';
 
 import { ProviderManager } from '../provider/provider.manager.js';

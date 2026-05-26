@@ -1,4 +1,5 @@
-import { Transport } from '../transport.interface.js';
+import { Transport }
+  from '../transport.interface.js';
 
 export class HttpTransport implements Transport {
   private messageHandler?: (
@@ -20,9 +21,9 @@ export class HttpTransport implements Transport {
     return this.messageHandler('http-client', payload);
   }
 
-  async send(): Promise<void> {}
+  async send(): Promise<void> { }
 
-  async start(): Promise<void> {}
+  async start(): Promise<void> { }
 
-  async stop(): Promise<void> {}
+  async stop(): Promise<void> { }
 }

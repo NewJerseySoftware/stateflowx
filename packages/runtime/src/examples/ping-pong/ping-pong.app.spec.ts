@@ -12,6 +12,14 @@ describe('PingPongApp', () => {
     server = new JSONRPCServer();
 
     bootstrapRuntime([new PingPongApp()], {
+
+      transport: {
+        onMessage: () => { },
+        send: async () => { },
+        start: async () => { },
+        stop: async () => { },
+      },
+
       providers: [],
 
       db: new InMemoryDB(),

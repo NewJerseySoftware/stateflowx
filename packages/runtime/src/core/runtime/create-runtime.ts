@@ -1,37 +1,101 @@
-import { InMemoryDB } from '../storage/in-memory.db.js';
+import { randomUUID }
+  from 'crypto';
 
-import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
-import { RuntimeConfig } from './runtime-config.interface.js';
+import { initializeRuntimeCapabilities }
+  from '../init/initialize-runtime-capabilities.js';
+
+import { CreateRuntimeConfig }
+  from './create-runtime-config.interface.js';
+
+import { normalizeRuntimeConfig }
+  from './normalize-runtime-config.js';
+
+import { RuntimeConfig }
+  from './runtime-config.interface.js';
 
 export function createRuntime(
-  config: CreateRuntimeConfig
+  config: CreateRuntimeConfig,
 ) {
-  const runtimeConfig: RuntimeConfig = {
-    db: config.db ?? new InMemoryDB(),
-    protocol: config.protocol,
-    providers: config.providers,
-    services: config.services,
-  };
 
-  config.transport.onMessage(async (clientId, payload) => {
-    const response = await config.protocol.receive(payload);
+  const runtimeConfig: RuntimeConfig =
+    normalizeRuntimeConfig(config);
 
-    //
-    // Push-based transports
-    // (websocket, mqtt, tcp)
-    // send responses
-    //
-    if (response !== undefined) {
-      await config.transport.send(clientId, response);
-    }
+  initializeRuntimeCapabilities(
+    runtimeConfig,
+    config,
+  );
 
-    //
-    // Request/response transports
-    // (http)
-    // use direct return values
-    //
-    return response;
-  });
+  // runtimeConfig.events?.on(
+  //   'runtime.message.received',
+  //   (event) => {
+
+  //     console.log(
+  //       '[Runtime Event] Message Received:',
+  //       event,
+  //     );
+
+  //   },
+  // );
+
+  runtimeConfig.transport.onMessage(
+    async (clientId, payload) => {
+
+      //
+      // Runtime ingress event
+      //
+      runtimeConfig.events?.emit({
+        id: randomUUID(),
+
+        type: 'runtime.message.received',
+
+        timestamp: Date.now(),
+
+        source: 'transport',
+
+        payload,
+      });
+
+      const response =
+        await runtimeConfig.protocol.receive(
+          payload,
+        );
+
+      //
+      // Push-based transports
+      // (WebSocket, MQTT, TCP)
+      //
+      if (response !== undefined) {
+
+        await runtimeConfig.transport.send(
+          clientId,
+          response,
+        );
+
+      }
+
+      //
+      // Runtime response event
+      //
+      runtimeConfig.events?.emit({
+        id: randomUUID(),
+
+        type: 'runtime.message.completed',
+
+        timestamp: Date.now(),
+
+        source: 'runtime',
+
+        payload: response,
+      });
+
+      //
+      // HTTP transports will ignore
+      // transport.send() and instead return the response directly
+      return response;
+
+    },
+  );
 
   return runtimeConfig;
+
 }

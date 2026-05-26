@@ -16,7 +16,6 @@ export interface RuntimeEvent {
 }
 
 
-
 export class RuntimeEventBus {
   private emitter = new EventEmitter();
 

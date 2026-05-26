@@ -14,6 +14,7 @@
     "lint": "eslint \"src/**/*.ts\" --fix",
     "format": "prettier \"packages/**/*.{ts,tsx,json,html,scss,css,md}\" --write",
     "format:check": "prettier \"packages/**/*.{ts,tsx,json,html,scss,css,md}\" --check",
+    "clean:js": "find . \\( -name \"*.js\" -o -name \"*.js.map\" \\) -not -path \"./node_modules/*\" -not -path \"./dist/*\" -delete",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch --passWithNoTests",
     "test:cov": "jest --coverage --passWithNoTests",
