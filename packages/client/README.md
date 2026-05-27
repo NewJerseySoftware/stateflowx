@@ -44,7 +44,7 @@ const config = defineConfig({
   protocol: jsonRpc(),
 
   transport: websocket({
-    url: 'ws://localhost:3000',
+    url: 'ws://localhost:3001',
   }),
 });
 
@@ -117,7 +117,7 @@ const config = defineConfig({
   protocol: jsonRpc(),
 
   transport: websocket({
-    url: 'ws://localhost:3000',
+    url: 'ws://localhost:3001',
   }),
 
   providers: [

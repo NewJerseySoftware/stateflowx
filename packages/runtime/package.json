@@ -1,6 +1,6 @@
 {
   "name": "@stateflowx/runtime",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Realtime orchestration runtime framework for AI workflows and distributed systems.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@stateflowx/client",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Client SDK for StateFlowX realtime runtimes.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
   "repository": {
