@@ -1,26 +1,8 @@
-import { EventEmitter } from 'events';
+import { EventEmitter }
+  from 'events';
 
-export interface RuntimeEvent {
-  id?: string;
-
-  type: string;
-
-  source?: string;
-
-  workflow?: string;
-
-  service?: string;
-
-  provider?: string;
-
-  payload?: unknown;
-
-  error?: string;
-
-  metadata?: Record<string, unknown>;
-
-  timestamp?: number;
-}
+import { RuntimeEvent }
+  from './runtime-event.js';
 
 export class RuntimeEventBus {
   private emitter = new EventEmitter();

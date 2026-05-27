@@ -1,4 +1,5 @@
-import { RuntimeEvent } from '../runtime-event-bus.js';
+import { RuntimeEvent } from "../runtime-event.js";
+
 
 export interface EventDispatcher {
   dispatch(event: RuntimeEvent): Promise<void>;
