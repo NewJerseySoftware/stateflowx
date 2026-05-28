@@ -65,11 +65,9 @@ const server = new WebSocketServer({
   port: 3001,
 });
 
-const transport =
-  new WebSocketTransport(server);
+const transport = new WebSocketTransport(server);
 
-const protocol =
-  new JsonRpcProtocol();
+const protocol = new JsonRpcProtocol();
 
 const runtime = createRuntime({
   transport,
@@ -80,8 +78,7 @@ const runtime = createRuntime({
     {
       name: 'default',
 
-      provider:
-        new GeminiProvider(),
+      provider: new GeminiProvider(),
     },
   ],
 
@@ -91,18 +88,13 @@ const runtime = createRuntime({
 //
 // Realtime runtime event dispatcher
 //
-const dispatcher =
-  new WebSocketEventDispatcher(
-    server
-  );
+const dispatcher = new WebSocketEventDispatcher(server);
 
 runtime.events.on(
   '*',
 
   async (event) => {
-    await dispatcher.dispatch(
-      event
-    );
+    await dispatcher.dispatch(event);
   }
 );
 
@@ -112,9 +104,7 @@ bootstrapRuntime(
   runtime
 );
 
-console.log(
-  'StateFlowX runtime listening on ws://localhost:3001'
-);
+console.log('StateFlowX runtime listening on ws://localhost:3001');
 ```
 
 ---

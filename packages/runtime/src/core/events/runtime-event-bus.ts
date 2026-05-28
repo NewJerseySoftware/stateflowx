@@ -1,8 +1,6 @@
-import { EventEmitter }
-  from 'events';
+import { EventEmitter } from 'events';
 
-import { RuntimeEvent }
-  from './runtime-event.js';
+import { RuntimeEvent } from './runtime-event.js';
 
 export class RuntimeEventBus {
   private emitter = new EventEmitter();

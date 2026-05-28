@@ -59,10 +59,7 @@ await client.connect();
 
 ```ts
 client.onRuntimeEvent((event) => {
-  console.log(
-    '[RUNTIME EVENT]',
-    event
-  );
+  console.log('[RUNTIME EVENT]', event);
 });
 ```
 
@@ -71,15 +68,9 @@ client.onRuntimeEvent((event) => {
 ## Workflow Execution Example
 
 ```ts
-await client.request(
-  'runtime.initialize',
-  config
-);
+await client.request('runtime.initialize', config);
 
-const result =
-  await client.request(
-    'weather.execute'
-  );
+const result = await client.request('weather.execute');
 ```
 
 ---
@@ -150,8 +141,7 @@ const config = defineConfig({
 
       provider: 'default',
 
-      prompt:
-        'Format weather data into structured JSON',
+      prompt: 'Format weather data into structured JSON',
     },
   ],
 });

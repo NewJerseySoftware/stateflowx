@@ -16,4 +16,8 @@ export class ServiceManager {
   get(name: string) {
     return this.services.get(name);
   }
+
+  list(): string[] {
+    return [...this.services.keys()];
+  }
 }

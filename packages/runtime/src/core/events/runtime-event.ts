@@ -1,21 +1,21 @@
 export interface RuntimeEvent {
-    id?: string;
+  id?: string;
 
-    type: string;
+  type: string;
 
-    source?: string;
+  source?: string;
 
-    workflow?: string;
+  workflow?: string;
 
-    service?: string;
+  service?: string;
 
-    provider?: string;
+  provider?: string;
 
-    payload?: unknown;
+  payload?: unknown;
 
-    error?: string;
+  error?: string;
 
-    metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 
-    timestamp?: number;
+  timestamp?: number;
 }

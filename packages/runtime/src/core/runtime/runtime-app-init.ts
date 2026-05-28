@@ -70,47 +70,117 @@ export class RuntimeInitializeApp implements RuntimeApp {
             workflow.route,
 
             async () => {
+              const workflowExecutionId = runtime.execution.start(
+                'workflow',
+                workflow.route
+              );
+
               runtime.events.emit({
                 type: 'workflow.started',
 
                 metadata: {
                   workflow: workflow.route,
+                  executionId: workflowExecutionId,
                 },
               });
 
               try {
+                console.log('[REGISTERED SERVICES]', runtime.services.list());
+
                 const service = runtime.services.get(workflow.service);
 
                 if (!service) {
                   throw new Error(`Service not found: ${workflow.service}`);
                 }
 
+                const serviceExecutionId = runtime.execution.start(
+                  'service',
+                  workflow.service,
+                  workflowExecutionId
+                );
+
+                runtime.events.emit({
+                  type: 'service.started',
+
+                  metadata: {
+                    service: workflow.service,
+                    executionId: serviceExecutionId,
+                    parentId: workflowExecutionId,
+                  },
+                });
+
                 const data = await service.execute();
 
-                const enhancedPrompt = `
-                      ${workflow.prompt}
+                runtime.execution.complete(serviceExecutionId);
 
-                      DATA:
-                      ${JSON.stringify(data)}
-                      `;
+                runtime.events.emit({
+                  type: 'service.completed',
+
+                  metadata: {
+                    service: workflow.service,
+                    executionId: serviceExecutionId,
+                    parentId: workflowExecutionId,
+                  },
+                });
+
+                const enhancedPrompt = `
+          ${workflow.prompt}
+
+          DATA:
+          ${JSON.stringify(data)}
+        `;
+
+                const providerExecutionId = runtime.execution.start(
+                  'provider',
+                  workflow.provider,
+                  workflowExecutionId
+                );
+
+                runtime.events.emit({
+                  type: 'provider.started',
+
+                  metadata: {
+                    provider: workflow.provider,
+                    executionId: providerExecutionId,
+                    parentId: workflowExecutionId,
+                  },
+                });
 
                 const result = await runtime.ai.generate(enhancedPrompt);
+
+                runtime.execution.complete(providerExecutionId);
+
+                runtime.events.emit({
+                  type: 'provider.completed',
+
+                  metadata: {
+                    provider: workflow.provider,
+                    executionId: providerExecutionId,
+                    parentId: workflowExecutionId,
+                  },
+                });
+
+                runtime.execution.complete(workflowExecutionId);
 
                 runtime.events.emit({
                   type: 'workflow.completed',
 
                   metadata: {
                     workflow: workflow.route,
+                    executionId: workflowExecutionId,
                   },
                 });
 
                 return result;
               } catch (err) {
+                runtime.execution.fail(workflowExecutionId);
+
                 runtime.events.emit({
                   type: 'workflow.failed',
 
                   metadata: {
                     workflow: workflow.route,
+                    executionId: workflowExecutionId,
                   },
 
                   payload: {
