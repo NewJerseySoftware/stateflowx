@@ -1,6 +1,11 @@
-import { JSONRPCClient, JSONRPCResponse } from 'json-rpc-2.0';
+import { JSONRPCClient, JSONRPCResponse }
+  from 'json-rpc-2.0';
 
-import { StateFlowXConfig } from '../config/stateflowx-config.interface.js';
+import { StateFlowXConfig }
+  from '../config/stateflowx-config.interface.js';
+
+import { RuntimeEnvelope }
+  from '@stateflowx/common/events/runtime-envelope.js';
 
 export interface ClientApi {
   connect(): Promise<void>;
@@ -123,21 +128,20 @@ export function createClient(config: StateFlowXConfig): ClientApi {
             'type' in parsed &&
             parsed.type === 'runtime.event'
           ) {
-            runtimeEventHandlers.forEach((handler) => {
-              handler(
-                (
-                  parsed as {
-                    payload: unknown;
-                  }
-                ).payload
-              );
-            });
+
+            const envelope =
+              parsed as RuntimeEnvelope;
+
+            runtimeEventHandlers.forEach(
+              handler => handler(envelope)
+            );
 
             return;
           }
 
-          // JSON-RPC lifecycle
-          rpc!.receive(parsed as JSONRPCResponse | JSONRPCResponse[]);
+          rpc!.receive(
+            parsed as JSONRPCResponse | JSONRPCResponse[]
+          );
         });
 
         socket.addEventListener('close', () => {

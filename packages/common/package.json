@@ -1,0 +1,25 @@
+{
+  "name": "@stateflowx/common",
+  "version": "1.0.2",
+  "description": "Shared contracts and types for StateFlowX runtime and client packages.",
+  "license": "Apache-2.0",
+  "author": "Burt Snyder",
+  "homepage": "https://github.com/NewJerseySoftware/stateflowx",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NewJerseySoftware/stateflowx.git"
+  },
+  "keywords": [
+    "stateflowx",
+    "workflow",
+    "orchestration",
+    "runtime",
+    "contracts",
+    "types"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ]
+}

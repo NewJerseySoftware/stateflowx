@@ -1,6 +1,8 @@
-import { EventEmitter } from 'events';
+import { EventEmitter }
+  from 'events';
 
-import { ExecutionContext } from './execution-context.interface.js';
+import { ExecutionContext }
+  from '@stateflowx/common/execution/execution-context.interface.js';
 
 export class ExecutionEventBus {
   private emitter = new EventEmitter();

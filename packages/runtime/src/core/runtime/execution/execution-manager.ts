@@ -1,16 +1,12 @@
 import { randomUUID } from 'crypto';
 
 import { ExecutionEventBus } from './execution-event-bus.js';
-import { ExecutionContext } from './execution-context.interface.js';
+import { ExecutionContext } from '@stateflowx/common/execution/execution-context.interface.js';
 
 export class ExecutionManager {
   readonly events = new ExecutionEventBus();
 
   private executions = new Map<string, ExecutionContext>();
-
-  constructor() {
-    console.log('[EXECUTION MANAGER CREATED]');
-  }
 
   start(
     type: 'workflow' | 'service' | 'provider',

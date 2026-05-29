@@ -1,6 +1,6 @@
 {
   "name": "@stateflowx/runtime",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "description": "Realtime orchestration runtime framework for AI workflows and distributed systems.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
   "repository": {
@@ -50,6 +50,7 @@
     "@nestjs/platform-express": "^11.1.21",
     "@nestjs/platform-ws": "^11.1.19",
     "@nestjs/websockets": "^11.1.19",
+    "@stateflowx/common": "^1.0.1",
     "class-validator": "^0.15.1",
     "dotenv": "^16.3.1",
     "json-rpc-2.0": "^1.5.1",
