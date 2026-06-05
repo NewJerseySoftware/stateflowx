@@ -2,6 +2,8 @@ import { ClientProtocol } from '../protocol/json-rpc.factory.js';
 import { TransportConfig } from '../transport/transport-config.interface.js';
 
 export interface StateFlowXConfig {
+  apiKey?: string;
+  
   protocol: ClientProtocol;
 
   transport: TransportConfig;

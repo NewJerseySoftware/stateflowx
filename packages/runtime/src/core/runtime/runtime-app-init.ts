@@ -19,6 +19,8 @@ export class RuntimeInitializeApp implements RuntimeApp {
         }
 
         const config = payload as {
+          apiKey?: string;
+
           services?: Array<{
             name: string;
 
@@ -43,6 +45,13 @@ export class RuntimeInitializeApp implements RuntimeApp {
             prompt: string;
           }>;
         };
+
+        logger.info(
+          {
+            hasApiKey: !!config.apiKey,
+          },
+          'Gemini API key received'
+        );
 
         //
         // REGISTER SERVICES
@@ -146,7 +155,7 @@ export class RuntimeInitializeApp implements RuntimeApp {
                   },
                 });
 
-                const result = await runtime.ai.generate(enhancedPrompt);
+                const result = await runtime.ai.generate(enhancedPrompt, config.apiKey);
 
                 runtime.execution.complete(providerExecutionId);
 

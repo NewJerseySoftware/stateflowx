@@ -3,12 +3,25 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AgentProvider } from '../provider.interface.js';
 
 export class GeminiProvider implements AgentProvider {
-  private genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-  async generate(prompt: string): Promise<string> {
+  //private readonly genAI: GoogleGenerativeAI;
+  // constructor(apiKey?: string) {
+  //   this.genAI = new GoogleGenerativeAI(
+  //     apiKey ?? process.env.GEMINI_API_KEY!
+  //   );
+  // }
+  async generate(prompt: string, apiKey?: string): Promise<string> {
     console.log('Gemini prompt:', prompt);
 
-    const model = this.genAI.getGenerativeModel({
+    console.log('[GEMINI PROVIDER API KEY]', {
+      hasApiKey: !!apiKey,
+      length: apiKey?.length,
+    });
+
+    const genAI = new GoogleGenerativeAI(
+      apiKey ?? process.env.GEMINI_API_KEY!
+    );
+
+    const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
     });
 

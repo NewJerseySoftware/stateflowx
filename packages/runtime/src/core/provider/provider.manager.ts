@@ -28,10 +28,11 @@ export class ProviderManager {
 
   async generate(
     prompt: string,
+    apiKey?: string,
     providerName = this.defaultProvider
   ): Promise<string> {
     const provider = this.get(providerName);
 
-    return provider.generate(prompt);
+    return provider.generate(prompt, apiKey);
   }
 }

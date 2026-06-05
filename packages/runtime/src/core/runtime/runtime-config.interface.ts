@@ -29,4 +29,6 @@ export interface RuntimeConfig {
   events?: RuntimeEventBus;
 
   db?: DB;
+
+  //flow?: unknown;
 }

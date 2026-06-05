@@ -36,5 +36,7 @@ export function createRuntimeContext(
     prompt(route: string, handler: Function) {
       config.protocol?.addMethod(route, handler);
     },
+
+    //flow: config.flow,
   };
 }

@@ -16,6 +16,7 @@ export function bootstrapRuntime(apps: RuntimeApp[], config: RuntimeConfig) {
     const context = createRuntimeContext(app, {
       ...config,
       events,
+      //flow: config.flow ?? new Flow1(),
     });
 
     app.register(context);
