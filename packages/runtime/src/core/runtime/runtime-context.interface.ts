@@ -10,6 +10,8 @@ import { ExecutionManager } from './execution/execution-manager.js';
 export type PromptHandler = (payload: unknown) => Promise<unknown> | unknown;
 
 export interface RuntimeContext {
+  apiKey?:string;
+  
   db: DB;
 
   state: Record<string, unknown>;

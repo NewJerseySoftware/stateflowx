@@ -155,7 +155,11 @@ export class RuntimeInitializeApp implements RuntimeApp {
                   },
                 });
 
-                const result = await runtime.ai.generate(enhancedPrompt, config.apiKey);
+                const apiKey =
+                  config.apiKey ??
+                  runtime.apiKey;
+
+                const result = await runtime.ai.generate(enhancedPrompt, apiKey);
 
                 runtime.execution.complete(providerExecutionId);
 

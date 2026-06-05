@@ -19,6 +19,8 @@ export function createRuntimeContext(
   const serviceManager = new ServiceManager(config.services);
 
   return {
+    apiKey: config?.apiKey,
+
     db,
 
     state: {},

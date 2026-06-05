@@ -3,12 +3,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AgentProvider } from '../provider.interface.js';
 
 export class GeminiProvider implements AgentProvider {
-  //private readonly genAI: GoogleGenerativeAI;
-  // constructor(apiKey?: string) {
-  //   this.genAI = new GoogleGenerativeAI(
-  //     apiKey ?? process.env.GEMINI_API_KEY!
-  //   );
-  // }
   async generate(prompt: string, apiKey?: string): Promise<string> {
     console.log('Gemini prompt:', prompt);
 

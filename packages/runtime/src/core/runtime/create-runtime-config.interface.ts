@@ -9,18 +9,28 @@ import { Transport } from '../transport/transport.interface.js';
 import { Protocol } from '../protocol/protocol.interface.js';
 
 export interface CreateRuntimeConfig {
+  apiKey?: string;
+
   transport: Transport;
+
   protocol: Protocol;
+
   providers: ProviderConfig[];
+
   services?: ServiceConfig[];
+
   execution?: {
     enabled?: boolean;
+
     events?: {
       enabled: boolean;
     };
+
     artifacts?: {
       enabled: boolean;
     };
+    
   };
+
   db?: DB;
 }

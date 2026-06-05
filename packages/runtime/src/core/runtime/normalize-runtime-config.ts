@@ -8,6 +8,9 @@ export function normalizeRuntimeConfig(
   config: CreateRuntimeConfig
 ): RuntimeConfig {
   return {
+    apiKey: config?.apiKey ?? 
+    process.env.GEMINI_API_KEY ?? '',
+
     db: config.db ?? new InMemoryDB(),
 
     transport: config.transport,
