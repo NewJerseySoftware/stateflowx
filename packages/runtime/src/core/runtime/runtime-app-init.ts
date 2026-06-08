@@ -9,6 +9,39 @@ import { createHttpService } from '../service/providers/http.service.js';
 export class RuntimeInitializeApp implements RuntimeApp {
   register(runtime: RuntimeContext) {
     runtime.prompt(
+      'runtime.precheck',
+
+      async (payload: unknown) => {
+
+        if (
+          typeof payload !== 'object' ||
+          payload === null
+        ) {
+          throw new Error(
+            'Invalid runtime config payload'
+          );
+        }
+
+        const config = payload as {
+          apiKey?: string;
+        };
+
+        const apiKey =
+          config.apiKey ??
+          runtime.apiKey;
+
+        if (runtime.ai.precheck) {
+          await runtime.ai.precheck(
+            apiKey
+          );
+        }
+
+        return {
+          success: true,
+        };
+      }
+    );
+    runtime.prompt(
       'runtime.initialize',
 
       async (payload: unknown) => {

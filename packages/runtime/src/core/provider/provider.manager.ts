@@ -1,3 +1,4 @@
+
 import { ProviderConfig } from './provider.config.interface.js';
 import { AgentProvider } from './provider.interface.js';
 
@@ -34,5 +35,18 @@ export class ProviderManager {
     const provider = this.get(providerName);
 
     return provider.generate(prompt, apiKey);
+  }
+
+  async precheck(
+    apiKey?: string,
+    providerName = this.defaultProvider
+  ): Promise<boolean> {
+
+    const provider =
+      this.get(providerName);
+
+    await provider.precheck?.(apiKey);
+
+    return true;
   }
 }

@@ -6,10 +6,3 @@ export function mockProvider(options: ProviderOptions = {}) {
     priority: options.priority ?? 0,
   };
 }
-
-// export function mockProvider(options: ProviderOptions) {
-//   return {
-//     type: 'mockProvider',
-//     ...options,
-//   };
-// }
