@@ -12,28 +12,18 @@ export class RuntimeInitializeApp implements RuntimeApp {
       'runtime.precheck',
 
       async (payload: unknown) => {
-
-        if (
-          typeof payload !== 'object' ||
-          payload === null
-        ) {
-          throw new Error(
-            'Invalid runtime config payload'
-          );
+        if (typeof payload !== 'object' || payload === null) {
+          throw new Error('Invalid runtime config payload');
         }
 
         const config = payload as {
           apiKey?: string;
         };
 
-        const apiKey =
-          config.apiKey ??
-          runtime.apiKey;
+        const apiKey = config.apiKey ?? runtime.apiKey;
 
         if (runtime.ai.precheck) {
-          await runtime.ai.precheck(
-            apiKey
-          );
+          await runtime.ai.precheck(apiKey);
         }
 
         return {
@@ -188,11 +178,15 @@ export class RuntimeInitializeApp implements RuntimeApp {
                   },
                 });
 
-                const apiKey =
-                  config.apiKey ??
-                  runtime.apiKey;
+                const apiKey = config.apiKey ?? runtime.apiKey;
 
-                const result = await runtime.ai.generate(enhancedPrompt, apiKey);
+                // const result =
+                //   await runtime.ai.generate(enhancedPrompt, apiKey);
+                const result = await runtime.agents.execute('weather-agent', {
+                  prompt: enhancedPrompt,
+                  data,
+                  apiKey,
+                });
 
                 runtime.execution.complete(providerExecutionId);
 

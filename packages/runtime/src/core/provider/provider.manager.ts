@@ -1,4 +1,3 @@
-
 import { ProviderConfig } from './provider.config.interface.js';
 import { AgentProvider } from './provider.interface.js';
 
@@ -41,9 +40,7 @@ export class ProviderManager {
     apiKey?: string,
     providerName = this.defaultProvider
   ): Promise<boolean> {
-
-    const provider =
-      this.get(providerName);
+    const provider = this.get(providerName);
 
     await provider.precheck?.(apiKey);
 

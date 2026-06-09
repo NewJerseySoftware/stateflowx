@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 
 import { ExecutionEventBus } from './execution-event-bus.js';
-import { ExecutionContext } from '@stateflowx/common/execution/execution-context.interface.js';
+import { ExecutionContext } from '@stateflowx/common';
 
 export class ExecutionManager {
   readonly events = new ExecutionEventBus();

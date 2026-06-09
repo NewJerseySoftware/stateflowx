@@ -11,9 +11,7 @@ export class GeminiProvider implements AgentProvider {
       length: apiKey?.length,
     });
 
-    const genAI = new GoogleGenerativeAI(
-      apiKey ?? process.env.GEMINI_API_KEY!
-    );
+    const genAI = new GoogleGenerativeAI(apiKey ?? process.env.GEMINI_API_KEY!);
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
@@ -28,21 +26,13 @@ export class GeminiProvider implements AgentProvider {
     return text;
   }
 
-  async precheck(
-    apiKey?: string
-  ): Promise<void> {
+  async precheck(apiKey?: string): Promise<void> {
+    const genAI = new GoogleGenerativeAI(apiKey ?? process.env.GEMINI_API_KEY!);
 
-    const genAI = new GoogleGenerativeAI(
-      apiKey ?? process.env.GEMINI_API_KEY!
-    );
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+    });
 
-    const model =
-      genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
-      });
-
-    await model.generateContent(
-      'ping'
-    );
+    await model.generateContent('ping');
   }
 }

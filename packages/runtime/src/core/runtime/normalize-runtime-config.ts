@@ -8,14 +8,15 @@ export function normalizeRuntimeConfig(
   config: CreateRuntimeConfig
 ): RuntimeConfig {
   return {
-    apiKey: config?.apiKey ?? 
-    process.env.GEMINI_API_KEY ?? '',
+    apiKey: config?.apiKey ?? process.env.GEMINI_API_KEY ?? '',
 
     db: config.db ?? new InMemoryDB(),
 
     transport: config.transport,
 
     protocol: config.protocol,
+
+    agents: config.agents,
 
     providers: config.providers,
 

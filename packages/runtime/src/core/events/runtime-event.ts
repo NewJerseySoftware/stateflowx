@@ -11,6 +11,8 @@ export interface RuntimeEvent {
 
   provider?: string;
 
+  agent?: string;
+
   payload?: unknown;
 
   error?: string;

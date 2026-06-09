@@ -1,6 +1,6 @@
 {
   "name": "@stateflowx/runtime",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Realtime orchestration runtime framework for AI workflows and distributed systems.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
   "repository": {
@@ -44,13 +44,14 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
+    "@google/adk": "^1.2.0",
     "@google/generative-ai": "^0.24.1",
     "@nestjs/common": "^11.1.19",
     "@nestjs/core": "^11.1.19",
     "@nestjs/platform-express": "^11.1.21",
     "@nestjs/platform-ws": "^11.1.19",
     "@nestjs/websockets": "^11.1.19",
-    "@stateflowx/common": "^1.0.1",
+    "@stateflowx/common": "^1.0.5",
     "class-validator": "^0.15.1",
     "dotenv": "^16.3.1",
     "json-rpc-2.0": "^1.5.1",
@@ -62,6 +63,7 @@
     "ws": "^8.13.0"
   },
   "devDependencies": {
+    "@google/adk-devtools": "^1.2.0",
     "@nestjs/cli": "^11.0.21",
     "@nestjs/schematics": "^11.1.0",
     "@nestjs/testing": "^11.1.19",

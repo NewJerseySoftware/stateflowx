@@ -20,6 +20,8 @@ import { JsonRpcProtocol } from './core/protocol/json-rpc/json-rpc.protocol.js';
 import { WebSocketTransport } from './core/transport/ws/ws.transport.js';
 import { WebSocketEventDispatcher } from './core/events/dispatchers/ws/websocket-event-dispatcher.js';
 
+import { GoogleADKAgent } from './core/agent/google-adk-agent.js';
+
 async function bootstrap() {
   // const app =
   //   await NestFactory.create(
@@ -58,6 +60,13 @@ async function bootstrap() {
   const runtime = createRuntime({
     transport,
     protocol,
+
+    agents: [
+      {
+        name: 'weather-agent',
+        agent: new GoogleADKAgent('weather-agent'),
+      },
+    ],
 
     providers: [
       {

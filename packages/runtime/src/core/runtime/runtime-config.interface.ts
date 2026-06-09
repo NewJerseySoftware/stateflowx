@@ -1,3 +1,4 @@
+import { AgentConfig } from '@stateflowx/common';
 import { DB } from '../db.interface.js';
 import { RuntimeEventBus } from '../events/runtime-event-bus.js';
 import { Protocol } from '../protocol/protocol.interface.js';
@@ -6,11 +7,13 @@ import { ServiceConfig } from '../service/service-config.interface.js';
 import { Transport } from '../transport/transport.interface.js';
 
 export interface RuntimeConfig {
-  apiKey:string;
-  
+  apiKey: string;
+
   transport: Transport;
 
   protocol: Protocol;
+
+  agents?: AgentConfig[];
 
   providers: ProviderConfig[];
 

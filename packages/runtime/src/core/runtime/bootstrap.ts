@@ -13,6 +13,8 @@ export function bootstrapRuntime(apps: RuntimeApp[], config: RuntimeConfig) {
   const events = config.events ?? new RuntimeEventBus();
 
   apps.forEach((app) => {
+    console.log('[BOOTSTRAP AGENTS]', config.agents);
+
     const context = createRuntimeContext(app, {
       ...config,
       events,
