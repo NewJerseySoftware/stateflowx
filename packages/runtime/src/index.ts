@@ -8,6 +8,8 @@ export * from './core/runtime/bootstrap.js';
 
 export * from './core/provider/providers/gemini.provider.js';
 
+export * from './core/agent/google-adk-agent.js';
+
 export * from './core/transport/http/http.transport.js';
 
 export * from './core/protocol/json-rpc/json-rpc.protocol.js';

@@ -36,6 +36,7 @@
     "@nestjs/core": "^11.1.19",
     "@nestjs/platform-ws": "^11.1.19",
     "@nestjs/websockets": "^11.1.19",
+    "@stateflowx/common": "^1.0.3",
     "dotenv": "^16.3.1",
     "json-rpc-2.0": "^1.5.1",
     "reflect-metadata": "^0.1.13",

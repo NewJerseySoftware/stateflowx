@@ -27,7 +27,7 @@ Examples include:
 import {
   RuntimeEvent,
   RuntimeEnvelope,
-  ExecutionContext
+  ExecutionContext,
 } from '@stateflowx/common';
 ```
 

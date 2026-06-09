@@ -1,6 +1,6 @@
 {
   "name": "@stateflowx/common",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "description": "Shared contracts and types for StateFlowX runtime and client packages.",
   "license": "Apache-2.0",
   "author": "Burt Snyder",
@@ -8,6 +8,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NewJerseySoftware/stateflowx.git"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json"
   },
   "keywords": [
     "stateflowx",

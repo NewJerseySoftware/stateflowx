@@ -1,4 +1,4 @@
-import { LlmAgent, InMemoryRunner } from '@google/adk';
+import { LlmAgent, InMemoryRunner, Gemini } from '@google/adk';
 
 import { Agent } from '@stateflowx/common';
 
@@ -6,7 +6,7 @@ export class GoogleADKAgent implements Agent {
   constructor(
     public readonly name: string,
     public readonly priority?: number
-  ) {}
+  ) { }
 
   async execute(payload?: unknown): Promise<unknown> {
     console.log('[ADK PAYLOAD]', payload);
@@ -19,10 +19,15 @@ export class GoogleADKAgent implements Agent {
 
     console.log('[INPUT PROMPT]', input.prompt);
 
+    const model = new Gemini({
+      model: 'gemini-2.5-flash',
+      apiKey: input?.apiKey,
+    });
+
     const agent = new LlmAgent({
       name: this.name,
 
-      model: 'gemini-2.5-flash',
+      model: model,
 
       instruction: input?.prompt,
     });

@@ -1,35 +1,24 @@
-import { JSONRPCClient, JSONRPCResponse }
-  from 'json-rpc-2.0';
+import { JSONRPCClient, JSONRPCResponse } from 'json-rpc-2.0';
 
-import { StateFlowXConfig }
-  from '../config/stateflowx-config.interface.js';
+import { StateFlowXConfig } from '../config/stateflowx-config.interface.js';
 
-import { RuntimeEnvelope }
-  from '@stateflowx/common/events/runtime-envelope.js';
+import { RuntimeEnvelope } from '@stateflowx/common';
 
 export interface ClientApi {
   connect(): Promise<void>;
 
-  precheck<TResponse = unknown>(
-    params?: unknown
-  ): Promise<TResponse>;
+  precheck<TResponse = unknown>(params?: unknown): Promise<TResponse>;
 
   request<TResponse, TParams = unknown>(
     method: string,
     params?: TParams
   ): Promise<TResponse>;
 
-  onRuntimeEvent(
-    handler: (event: unknown) => void
-  ): void;
+  onRuntimeEvent(handler: (event: unknown) => void): void;
 
-  onConnect(
-    handler: () => void
-  ): void;
+  onConnect(handler: () => void): void;
 
-  onDisconnect(
-    handler: () => void
-  ): void;
+  onDisconnect(handler: () => void): void;
 }
 
 export function createClient(config: StateFlowXConfig): ClientApi {
@@ -44,7 +33,6 @@ export function createClient(config: StateFlowXConfig): ClientApi {
   if (config.protocol.type !== 'json-rpc') {
     throw new Error(`Unsupported protocol: ${config.protocol.type}`);
   }
-
 
   // TODO:
   // HTTP transport temporarily disabled.
@@ -99,42 +87,31 @@ export function createClient(config: StateFlowXConfig): ClientApi {
   // }
 
   if (config.transport.type === 'websocket') {
+    const runtimeEventHandlers: Array<(event: unknown) => void> = [];
 
-    const runtimeEventHandlers:
-      Array<(event: unknown) => void> = [];
+    const connectHandlers: Array<() => void> = [];
 
-    const connectHandlers:
-      Array<() => void> = [];
+    const disconnectHandlers: Array<() => void> = [];
 
-    const disconnectHandlers:
-      Array<() => void> = [];
+    let socket: WebSocket | null = null;
 
-    let socket:
-      WebSocket | null = null;
-
-    let rpc:
-      JSONRPCClient | null = null;
+    let rpc: JSONRPCClient | null = null;
 
     let connected = false;
 
-
     return {
-
       async connect(): Promise<void> {
         if (connected) {
           return;
         }
 
-        socket =
-          new WebSocket(config.transport.url);
+        socket = new WebSocket(config.transport.url);
 
         await new Promise<void>((resolve, reject) => {
           socket!.addEventListener('open', () => {
             connected = true;
 
-            connectHandlers.forEach(
-              handler => handler()
-            );
+            connectHandlers.forEach((handler) => handler());
 
             resolve();
           });
@@ -142,9 +119,7 @@ export function createClient(config: StateFlowXConfig): ClientApi {
           socket!.addEventListener('close', () => {
             connected = false;
 
-            disconnectHandlers.forEach(
-              handler => handler()
-            );
+            disconnectHandlers.forEach((handler) => handler());
 
             socket = null;
 
@@ -176,22 +151,15 @@ export function createClient(config: StateFlowXConfig): ClientApi {
             'type' in parsed &&
             parsed.type === 'runtime.event'
           ) {
+            const envelope = parsed as RuntimeEnvelope;
 
-            const envelope =
-              parsed as RuntimeEnvelope;
-
-            runtimeEventHandlers.forEach(
-              handler => handler(envelope)
-            );
+            runtimeEventHandlers.forEach((handler) => handler(envelope));
 
             return;
           }
 
-          rpc!.receive(
-            parsed as JSONRPCResponse | JSONRPCResponse[]
-          );
+          rpc!.receive(parsed as JSONRPCResponse | JSONRPCResponse[]);
         });
-
       },
 
       async request<TResponse, TParams = unknown>(
@@ -205,41 +173,27 @@ export function createClient(config: StateFlowXConfig): ClientApi {
         return rpc.request(method, params) as Promise<TResponse>;
       },
 
-
       async precheck<TResponse = unknown>(
         params?: unknown
       ): Promise<TResponse> {
         if (!rpc) {
-          throw new Error(
-            'Client is not connected. Call connect() first.'
-          );
+          throw new Error('Client is not connected. Call connect() first.');
         }
 
-        return rpc.request(
-          'runtime.precheck',
-          params
-        ) as Promise<TResponse>;
+        return rpc.request('runtime.precheck', params) as Promise<TResponse>;
       },
 
-
-
-      onConnect(
-        handler: () => void
-      ): void {
+      onConnect(handler: () => void): void {
         connectHandlers.push(handler);
       },
 
-      onDisconnect(
-        handler: () => void
-      ): void {
+      onDisconnect(handler: () => void): void {
         disconnectHandlers.push(handler);
       },
 
       onRuntimeEvent(handler: (event: unknown) => void): void {
         runtimeEventHandlers.push(handler);
       },
-
-
     };
   }
 

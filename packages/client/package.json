@@ -1,6 +1,6 @@
 {
   "name": "@stateflowx/client",
-  "version": "0.3.3",
+  "version": "0.3.6",
   "description": "Client SDK for StateFlowX realtime runtimes.",
   "author": "Burt Snyder <snyder.burt@gmail.com>",
   "repository": {
@@ -30,7 +30,7 @@
     "format:check": "prettier \"packages/**/*.{ts,tsx,js,json,html,scss,css,md}\" --check"
   },
   "dependencies": {
-    "@stateflowx/common": "^1.0.1",
+    "@stateflowx/common": "^1.0.4",
     "json-rpc-2.0": "^1.5.1"
   },
   "devDependencies": {

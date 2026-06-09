@@ -1,8 +1,7 @@
-import { RuntimeEvent }
-    from './runtime-event.js';
+import { RuntimeEvent } from './runtime-event.js';
 
 export interface RuntimeEnvelope {
-    type: 'runtime.event';
+  type: 'runtime.event';
 
-    payload: RuntimeEvent;
+  payload: RuntimeEvent;
 }

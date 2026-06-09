@@ -1,12 +1,15 @@
 import { ClientProtocol } from '../protocol/json-rpc.factory.js';
 import { TransportConfig } from '../transport/transport-config.interface.js';
+import { AgentConfig } from '@stateflowx/common';
 
 export interface StateFlowXConfig {
   apiKey?: string;
-  
+
   protocol: ClientProtocol;
 
   transport: TransportConfig;
+
+  agents?: AgentConfig[];
 
   providers?: unknown[];
 
