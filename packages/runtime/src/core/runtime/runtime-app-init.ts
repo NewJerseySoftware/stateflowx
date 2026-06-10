@@ -180,13 +180,26 @@ export class RuntimeInitializeApp implements RuntimeApp {
 
                 const apiKey = config.apiKey ?? runtime.apiKey;
 
-                // const result =
-                //   await runtime.ai.generate(enhancedPrompt, apiKey);
-                const result = await runtime.agents.execute('weather-agent', {
-                  prompt: enhancedPrompt,
-                  data,
-                  apiKey,
-                });
+
+                // Hackathon google-adk /  MPC.
+                if (workflow.provider === 'google-adk') {
+                  console.log(
+                    '[GOOGLE ADK/MPC CONFIG USED]'
+                  );
+                  
+                  return runtime.agents.execute(
+                    'weather-agent',
+                    {
+                      prompt: enhancedPrompt,
+                      data,
+                      apiKey,
+                    }
+                  );
+                }
+
+                // Normal gemini config .
+                const result =
+                  await runtime.ai.generate(enhancedPrompt, apiKey);
 
                 runtime.execution.complete(providerExecutionId);
 

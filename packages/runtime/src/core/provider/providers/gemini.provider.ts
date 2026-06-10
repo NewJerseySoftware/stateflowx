@@ -1,6 +1,8 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI }
+  from '@google/generative-ai';
 
-import { AgentProvider } from '../provider.interface.js';
+import { AgentProvider }
+  from '../provider.interface.js';
 
 export class GeminiProvider implements AgentProvider {
   async generate(prompt: string, apiKey?: string): Promise<string> {

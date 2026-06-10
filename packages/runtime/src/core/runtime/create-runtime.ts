@@ -1,12 +1,17 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } 
+    from 'crypto';
 
-import { initializeRuntimeCapabilities } from '../init/initialize-runtime-capabilities.js';
+import { initializeRuntimeCapabilities } 
+    from '../init/initialize-runtime-capabilities.js';
 
-import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
+import { CreateRuntimeConfig } 
+    from './create-runtime-config.interface.js';
 
-import { normalizeRuntimeConfig } from './normalize-runtime-config.js';
+import { normalizeRuntimeConfig } 
+    from './normalize-runtime-config.js';
 
-import { RuntimeConfig } from './runtime-config.interface.js';
+import { RuntimeConfig } 
+    from './runtime-config.interface.js';
 
 export function createRuntime(config: CreateRuntimeConfig) {
   const runtimeConfig: RuntimeConfig = normalizeRuntimeConfig(config);
@@ -57,6 +62,7 @@ export function createRuntime(config: CreateRuntimeConfig) {
     //
     // HTTP transports will ignore
     // transport.send() and instead return the response directly
+    //
     return response;
   });
 
