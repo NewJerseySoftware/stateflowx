@@ -8,6 +8,10 @@ export * from './core/runtime/bootstrap.js';
 
 export * from './core/provider/providers/gemini.provider.js';
 
+export * from './core/provider/providers/google-adk.provider.js';
+
+export * from './core/provider/providers/mock-provider.provider.js';
+
 export * from './core/agent/google-adk-agent.js';
 
 export * from './core/transport/http/http.transport.js';
