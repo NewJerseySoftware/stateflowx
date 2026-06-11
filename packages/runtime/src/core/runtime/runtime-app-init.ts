@@ -183,18 +183,41 @@ export class RuntimeInitializeApp implements RuntimeApp {
 
                 // Hackathon google-adk /  MPC.
                 if (workflow.provider === 'google-adk') {
-                  console.log(
-                    '[GOOGLE ADK/MPC CONFIG USED]'
-                  );
-                  
-                  return runtime.agents.execute(
-                    'weather-agent',
-                    {
-                      prompt: enhancedPrompt,
-                      data,
-                      apiKey,
-                    }
-                  );
+
+                  const result =
+                    await runtime.agents.execute(
+                      'weather-agent',
+                      {
+                        prompt: enhancedPrompt,
+                        data,
+                        apiKey,
+                      }
+                    );
+
+                  // COMPLETE PROVIDER
+                  runtime.execution.complete(providerExecutionId);
+
+                  runtime.events.emit({
+                    type: 'provider.completed',
+                    metadata: {
+                      provider: workflow.provider,
+                      executionId: providerExecutionId,
+                      parentId: workflowExecutionId,
+                    },
+                  });
+
+                  // COMPLETE WORKFLOW
+                  runtime.execution.complete(workflowExecutionId);
+
+                  runtime.events.emit({
+                    type: 'workflow.completed',
+                    metadata: {
+                      workflow: workflow.route,
+                      executionId: workflowExecutionId,
+                    },
+                  });
+
+                  return result;
                 }
 
                 // Normal gemini config .
@@ -225,6 +248,8 @@ export class RuntimeInitializeApp implements RuntimeApp {
                 });
 
                 return result;
+
+                
               } catch (err) {
                 runtime.execution.fail(workflowExecutionId);
 

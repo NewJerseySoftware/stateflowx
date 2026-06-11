@@ -35,7 +35,7 @@ export class GoogleADKAgent implements Agent {
     //
     // StateFlowX payload
     //
-    console.log('[ADK PAYLOAD]', payload);
+    //console.log('[ADK PAYLOAD]', payload);
 
     const input = payload as {
       prompt?: string;
