@@ -1,11 +1,8 @@
-import { CreateRuntimeConfig } 
-    from './create-runtime-config.interface.js';
+import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
 
-import { RuntimeConfig } 
-    from './runtime-config.interface.js';
+import { RuntimeConfig } from './runtime-config.interface.js';
 
-import { InMemoryDB } 
-    from '../storage/in-memory.db.js';
+import { InMemoryDB } from '../storage/in-memory.db.js';
 
 export function normalizeRuntimeConfig(
   config: CreateRuntimeConfig

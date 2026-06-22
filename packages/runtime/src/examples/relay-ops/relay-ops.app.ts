@@ -12,7 +12,7 @@ export class RelayOpsApp implements RuntimeApp {
         throw new Error('Invalid payload');
       }
 
-      return runtime.ai.generate(payload.prompt);
+      return runtime.providers.execute('gemini', { prompt: payload.prompt });
     });
   }
 }

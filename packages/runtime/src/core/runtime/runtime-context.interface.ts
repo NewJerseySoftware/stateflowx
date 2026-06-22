@@ -27,7 +27,7 @@ export interface RuntimeContext {
 
   agents: AgentManager;
 
-  ai: ProviderManager;
+  providers: ProviderManager; //providers previously 'ai'
 
   services: ServiceManager;
 

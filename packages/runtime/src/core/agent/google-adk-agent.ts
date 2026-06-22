@@ -1,13 +1,7 @@
-import {
-  LlmAgent,
-  InMemoryRunner,
-  Gemini,
-  AgentRegistry,
-} from '@google/adk';
+import { LlmAgent, InMemoryRunner, Gemini, AgentRegistry } from '@google/adk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import { Agent } from '@stateflowx/common';
-
 
 //
 // Hackathon Note:
@@ -24,14 +18,12 @@ import { Agent } from '@stateflowx/common';
 //
 
 export class GoogleADKAgent implements Agent {
-
   constructor(
     public readonly name: string,
     public readonly priority?: number
-  ) { }
+  ) {}
 
   async execute(payload?: unknown): Promise<unknown> {
-
     //
     // StateFlowX payload
     //
@@ -62,21 +54,11 @@ export class GoogleADKAgent implements Agent {
     // Useful for debugging and proving
     // Agent Registry discovery works.
     //
-    const servers =
-      await registry.listMcpServers();
+    const servers = await registry.listMcpServers();
 
-    console.log(
-      '[MCP SERVERS]',
-      JSON.stringify(
-        servers,
-        null,
-        2
-      )
-    );
+    console.log('[MCP SERVERS]', JSON.stringify(servers, null, 2));
 
-    console.log(
-      '[LOADING MCP TOOLSET]'
-    );
+    console.log('[LOADING MCP TOOLSET]');
 
     //
     // Load MCP tools from Agent Registry.
@@ -84,15 +66,11 @@ export class GoogleADKAgent implements Agent {
     // ADK exposes the remote MCP server as
     // a toolset which Gemini can invoke.
     //
-    const mongodbToolset =
-      await registry.getMcpToolset(
-        process.env.GOOGLE_AGENT_REGISTRY_MCP_SERVER!
-      );
-
-    console.log(
-      '[MCP TOOLSET]',
-      mongodbToolset
+    const mongodbToolset = await registry.getMcpToolset(
+      process.env.GOOGLE_AGENT_REGISTRY_MCP_SERVER!
     );
+
+    console.log('[MCP TOOLSET]', mongodbToolset);
 
     //
     // Gemini model.
@@ -121,9 +99,7 @@ export class GoogleADKAgent implements Agent {
 
       instruction: input?.prompt,
 
-      tools: [
-        mongodbToolset,
-      ],
+      tools: [mongodbToolset],
     });
 
     //
@@ -196,34 +172,23 @@ export class GoogleADKAgent implements Agent {
         ],
       },
     })) {
-
       eventCount++;
 
-      console.log(
-        `[ADK EVENT ${eventCount}]`,
-        JSON.stringify(event, null, 2)
-      );
+      console.log(`[ADK EVENT ${eventCount}]`, JSON.stringify(event, null, 2));
 
       //
       // Capture MCP function responses.
       //
-      const functionResponse =
-        event.content?.parts?.find(
-          (part: any) => part.functionResponse
-        );
+      const functionResponse = event.content?.parts?.find(
+        (part: any) => part.functionResponse
+      );
 
       if (functionResponse) {
-
-        lastFunctionResponse =
-          functionResponse.functionResponse;
+        lastFunctionResponse = functionResponse.functionResponse;
 
         console.log(
           '[MCP FUNCTION RESPONSE]',
-          JSON.stringify(
-            lastFunctionResponse,
-            null,
-            2
-          )
+          JSON.stringify(lastFunctionResponse, null, 2)
         );
       }
 
@@ -231,17 +196,11 @@ export class GoogleADKAgent implements Agent {
       // Capture ADK / Gemini errors..
       //
       if (event.errorCode) {
+        console.error('[ADK ERROR]', event.errorCode, event.errorMessage);
 
-        console.error(
-          '[ADK ERROR]',
-          event.errorCode,
-          event.errorMessage
+        const isKnownContinuationError = event.errorMessage?.includes(
+          'function call turn comes immediately'
         );
-
-        const isKnownContinuationError =
-          event.errorMessage?.includes(
-            'function call turn comes immediately'
-          );
 
         //
         // Observed ADK MCP continuation error.
@@ -255,18 +214,10 @@ export class GoogleADKAgent implements Agent {
         //
         // Until root cause is identified we fall
         // back to a direct Gemini invocation.
-        if (
-          isKnownContinuationError &&
-          lastFunctionResponse
-        ) {
-
+        if (isKnownContinuationError && lastFunctionResponse) {
           console.error(
             '[ADK MCP CONTINUATION ERROR]',
-            JSON.stringify(
-              lastFunctionResponse,
-              null,
-              2
-            )
+            JSON.stringify(lastFunctionResponse, null, 2)
           );
 
           console.warn(
@@ -274,10 +225,7 @@ export class GoogleADKAgent implements Agent {
             'Falling back to direct Gemini call'
           );
 
-          return this.workaround(
-            input.prompt ?? '',
-            input.apiKey
-          );
+          return this.workaround(input.prompt ?? '', input.apiKey);
         }
 
         return JSON.stringify({
@@ -295,45 +243,24 @@ export class GoogleADKAgent implements Agent {
     return JSON.stringify({
       success: false,
       eventCount,
-      message:
-        'ADK execution completed without a final response.',
+      message: 'ADK execution completed without a final response.',
     });
   }
 
+  private async workaround(prompt: string, apiKey?: string): Promise<string> {
+    console.log('[ADK WORKAROUND]', 'Executing direct Gemini request');
 
-  private async workaround(
-    prompt: string,
-    apiKey?: string
-  ): Promise<string> {
+    const genAI = new GoogleGenerativeAI(apiKey ?? process.env.GEMINI_API_KEY!);
 
-    console.log(
-      '[ADK WORKAROUND]',
-      'Executing direct Gemini request'
-    );
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+    });
 
-    const genAI =
-      new GoogleGenerativeAI(
-        apiKey ??
-        process.env.GEMINI_API_KEY!
-      );
+    const result = await model.generateContent(prompt);
 
-    const model =
-      genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
-      });
+    const text = result.response.text();
 
-    const result =
-      await model.generateContent(
-        prompt
-      );
-
-    const text =
-      result.response.text();
-
-    console.log(
-      '[ADK WORKAROUND RESPONSE]',
-      text
-    );
+    console.log('[ADK WORKAROUND RESPONSE]', text);
 
     return text;
   }

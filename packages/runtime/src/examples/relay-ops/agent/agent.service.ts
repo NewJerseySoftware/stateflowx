@@ -6,6 +6,8 @@ export class AgentService {
   constructor(private readonly providers: ProviderManager) {}
 
   async prompt(prompt: string): Promise<string> {
-    return this.providers.get('gemini').generate(prompt);
+    return this.providers.execute('gemini', {
+      prompt,
+    });
   }
 }

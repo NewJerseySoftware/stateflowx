@@ -1,5 +1,4 @@
-import { AgentProvider } 
-  from './provider.interface.js';
+import { AgentProvider } from './provider.interface.js';
 
 export interface ProviderConfig {
   name: string;

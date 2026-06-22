@@ -22,8 +22,8 @@ export class RuntimeInitializeApp implements RuntimeApp {
 
         const apiKey = config.apiKey ?? runtime.apiKey;
 
-        if (runtime.ai.precheck) {
-          await runtime.ai.precheck(apiKey);
+        if (runtime.providers.precheck) {
+          await runtime.providers.precheck(apiKey);
         }
 
         return {
@@ -180,49 +180,37 @@ export class RuntimeInitializeApp implements RuntimeApp {
 
                 const apiKey = config.apiKey ?? runtime.apiKey;
 
+                const result = await runtime.providers.execute(
+                  workflow.provider,
+                  {
+                    prompt: enhancedPrompt,
+                    data,
+                    apiKey,
+                  }
+                );
 
-                // Hackathon google-adk /  MPC.
-                if (workflow.provider === 'google-adk') {
+                // COMPLETE PROVIDER
+                runtime.execution.complete(providerExecutionId);
 
-                  const result =
-                    await runtime.agents.execute(
-                      'weather-agent',
-                      {
-                        prompt: enhancedPrompt,
-                        data,
-                        apiKey,
-                      }
-                    );
+                runtime.events.emit({
+                  type: 'provider.completed',
+                  metadata: {
+                    provider: workflow.provider,
+                    executionId: providerExecutionId,
+                    parentId: workflowExecutionId,
+                  },
+                });
 
-                  // COMPLETE PROVIDER
-                  runtime.execution.complete(providerExecutionId);
+                // COMPLETE WORKFLOW
+                runtime.execution.complete(workflowExecutionId);
 
-                  runtime.events.emit({
-                    type: 'provider.completed',
-                    metadata: {
-                      provider: workflow.provider,
-                      executionId: providerExecutionId,
-                      parentId: workflowExecutionId,
-                    },
-                  });
-
-                  // COMPLETE WORKFLOW
-                  runtime.execution.complete(workflowExecutionId);
-
-                  runtime.events.emit({
-                    type: 'workflow.completed',
-                    metadata: {
-                      workflow: workflow.route,
-                      executionId: workflowExecutionId,
-                    },
-                  });
-
-                  return result;
-                }
-
-                // Normal gemini config .
-                const result =
-                  await runtime.ai.generate(enhancedPrompt, apiKey);
+                runtime.events.emit({
+                  type: 'workflow.completed',
+                  metadata: {
+                    workflow: workflow.route,
+                    executionId: workflowExecutionId,
+                  },
+                });
 
                 runtime.execution.complete(providerExecutionId);
 
@@ -248,8 +236,6 @@ export class RuntimeInitializeApp implements RuntimeApp {
                 });
 
                 return result;
-
-                
               } catch (err) {
                 runtime.execution.fail(workflowExecutionId);
 

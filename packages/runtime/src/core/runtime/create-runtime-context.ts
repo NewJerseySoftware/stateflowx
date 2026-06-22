@@ -41,7 +41,7 @@ export function createRuntimeContext(
 
     agents: agentManager,
 
-    ai: providerManager,
+    providers: providerManager,
 
     services: serviceManager,
 

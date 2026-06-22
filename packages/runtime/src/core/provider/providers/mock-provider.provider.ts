@@ -1,12 +1,9 @@
+import { ProviderExecutionRequest } from '../provider-execution-request.interface.js';
 import { AgentProvider } from '../provider.interface.js';
 
 export class MockProvider implements AgentProvider {
-  async generate(prompt: string): Promise<string> {
-    console.log('MockProvider prompt:', prompt);
-
+  async execute(request: ProviderExecutionRequest): Promise<string> {
     const response = `Mock response for prompt: "${prompt}"`;
-
-    console.log('MockProvider response:', response);
 
     return response;
   }

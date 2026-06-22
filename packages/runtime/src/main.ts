@@ -1,16 +1,12 @@
 import 'dotenv/config';
 
-import { NestFactory }
-  from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 
-import { WsAdapter }
-  from '@nestjs/platform-ws';
+import { WsAdapter } from '@nestjs/platform-ws';
 
-import { WebSocketServer }
-  from 'ws';
+import { WebSocketServer } from 'ws';
 
-import { WebSocketRuntimeModule }
-  from './websocket-runtime.module.js';
+import { WebSocketRuntimeModule } from './websocket-runtime.module.js';
 
 import {
   bootstrapRuntime,
@@ -19,17 +15,13 @@ import {
   RuntimeInitializeApp,
 } from './index.js';
 
-import { JsonRpcProtocol }
-  from './core/protocol/json-rpc/json-rpc.protocol.js';
+import { JsonRpcProtocol } from './core/protocol/json-rpc/json-rpc.protocol.js';
 
-import { WebSocketTransport }
-  from './core/transport/ws/ws.transport.js';
+import { WebSocketTransport } from './core/transport/ws/ws.transport.js';
 
-import { WebSocketEventDispatcher }
-  from './core/events/dispatchers/ws/websocket-event-dispatcher.js';
+import { WebSocketEventDispatcher } from './core/events/dispatchers/ws/websocket-event-dispatcher.js';
 
-import { GoogleADKAgent }
-  from './core/agent/google-adk-agent.js';
+import { GoogleADKAgent } from './core/agent/google-adk-agent.js';
 
 import { GoogleAdkProvider } from './core/provider/providers/google-adk.provider.js';
 
@@ -87,9 +79,7 @@ async function bootstrap() {
       },
       {
         name: 'google-adk',
-        provider: new GoogleAdkProvider(
-          new GoogleADKAgent('weather-agent')
-        ),
+        provider: new GoogleAdkProvider(new GoogleADKAgent('weather-agent')),
       },
     ],
 

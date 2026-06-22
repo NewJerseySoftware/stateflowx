@@ -1,4 +1,9 @@
-import { ProviderExecutionRequest } from './provider-execution-request.interface.js';
+export interface ProviderExecutionRequest {
+  prompt: string;
+  apiKey?: string;
+  data?: unknown;
+  metadata?: Record<string, unknown>;
+}
 
 export interface AgentProvider {
   precheck?(apiKey?: string): Promise<void>;
