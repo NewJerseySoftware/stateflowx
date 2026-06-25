@@ -1,10 +1,9 @@
 import { CreateRuntimeConfig } from '../runtime/create-runtime-config.interface.js';
 
-import { RuntimeConfig } from '../runtime/runtime-config.interface.js';
+import { RuntimeOptions } from '../runtime/runtime-options.interface.js';
 
 export function initializeExecutionArtifacts(
-  _runtime: RuntimeConfig,
-  _config: CreateRuntimeConfig
+  _runtime: RuntimeOptions,
 ): void {
   //
   // TODO:

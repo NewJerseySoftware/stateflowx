@@ -4,23 +4,37 @@ import { createRuntimeContext } from './create-runtime-context.js';
 
 import { RuntimeApp } from './runtime-app.interface.js';
 
-import { RuntimeConfig } from './runtime-config.interface.js';
+import { RuntimeOptions } from './runtime-options.interface.js';
 
-export function bootstrapRuntime(apps: RuntimeApp[], config: RuntimeConfig) {
-  //
-  // SINGLE SHARED RUNTIME EVENT BUS
-  //
-  const events = config.events ?? new RuntimeEventBus();
+import { Runtime } from './Runtime.js';
 
-  apps.forEach((app) => {
-    console.log('[BOOTSTRAP AGENTS]', config.agents);
 
-    const context = createRuntimeContext(app, {
-      ...config,
-      events,
-      //flow: config.flow ?? new Flow1(),
-    });
+export function bootstrapRuntime(
+    apps: RuntimeApp[],
+    runtime: Runtime
+) {
+    for (const app of apps) {
 
-    app.register(context);
-  });
+        app.register(
+            createRuntimeContext(runtime)
+        );
+    }
 }
+// export function bootstrapRuntime(apps: RuntimeApp[], runtime: Runtime) {
+//   //
+//   // SINGLE SHARED RUNTIME EVENT BUS
+//   //
+//   const events = runtime.events ?? new RuntimeEventBus();
+
+//   apps.forEach((app) => {
+//     console.log('[BOOTSTRAP AGENTS]', runtime.agents);
+
+//     const context = createRuntimeContext(app, {
+//       ...runtime,
+//       events,
+//       //flow: config.flow ?? new Flow1(),
+//     });
+
+//     app.register(context);
+//   });
+// }

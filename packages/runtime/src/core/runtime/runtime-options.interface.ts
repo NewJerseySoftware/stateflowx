@@ -6,7 +6,7 @@ import { ProviderConfig } from '../provider/provider.config.interface.js';
 import { ServiceConfig } from '../service/service-config.interface.js';
 import { Transport } from '../transport/transport.interface.js';
 
-export interface RuntimeConfig {
+export interface RuntimeOptions {
   apiKey: string;
 
   transport: Transport;

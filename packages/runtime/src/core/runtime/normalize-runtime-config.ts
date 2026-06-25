@@ -1,12 +1,12 @@
 import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
 
-import { RuntimeConfig } from './runtime-config.interface.js';
+import { RuntimeOptions } from './runtime-options.interface.js';
 
 import { InMemoryDB } from '../storage/in-memory.db.js';
 
 export function normalizeRuntimeConfig(
   config: CreateRuntimeConfig
-): RuntimeConfig {
+): RuntimeOptions {
   return {
     apiKey: config?.apiKey ?? process.env.GEMINI_API_KEY ?? '',
 

@@ -1,7 +1,7 @@
 import { RuntimeEventBus } from '../events/runtime-event-bus.js';
 
-import { RuntimeConfig } from '../runtime/runtime-config.interface.js';
+import { RuntimeOptions } from '../runtime/runtime-options.interface.js';
 
-export function initializeExecutionEvents(runtime: RuntimeConfig): void {
+export function initializeExecutionEvents(runtime: RuntimeOptions): void {
   runtime.events ??= new RuntimeEventBus();
 }

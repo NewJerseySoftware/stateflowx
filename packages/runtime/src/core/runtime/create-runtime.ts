@@ -6,18 +6,24 @@ import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
 
 import { normalizeRuntimeConfig } from './normalize-runtime-config.js';
 
-import { RuntimeConfig } from './runtime-config.interface.js';
+import { RuntimeOptions } from './runtime-options.interface.js';
+import { Runtime } from './Runtime.js';
 
 export function createRuntime(config: CreateRuntimeConfig) {
-  const runtimeConfig: RuntimeConfig = normalizeRuntimeConfig(config);
 
-  initializeRuntimeCapabilities(runtimeConfig, config);
+  const options: RuntimeOptions = normalizeRuntimeConfig(config);
 
-  runtimeConfig.transport.onMessage(async (clientId, payload) => {
+  const runtime =
+    new Runtime(options);
+
+    //todo: initializeRuntimeCapabilities ( runtime)
+  initializeRuntimeCapabilities(options);
+
+  runtime.transport.onMessage(async (clientId, payload) => {
     //
     // Runtime ingress event
     //
-    runtimeConfig.events?.emit({
+    runtime.events?.emit({
       id: randomUUID(),
 
       type: 'runtime.message.received',
@@ -29,20 +35,20 @@ export function createRuntime(config: CreateRuntimeConfig) {
       payload,
     });
 
-    const response = await runtimeConfig.protocol.receive(payload);
+    const response = await runtime.protocol.receive(payload);
 
     //
     // Push-based transports
     // (WebSocket, MQTT, TCP)
     //
     if (response !== undefined) {
-      await runtimeConfig.transport.send(clientId, response);
+      await runtime.transport.send(clientId, response);
     }
 
     //
     // Runtime response event
     //
-    runtimeConfig.events?.emit({
+    runtime.events?.emit({
       id: randomUUID(),
 
       type: 'runtime.message.completed',
@@ -61,5 +67,5 @@ export function createRuntime(config: CreateRuntimeConfig) {
     return response;
   });
 
-  return runtimeConfig;
+  return runtime;
 }
