@@ -4,9 +4,7 @@ export enum ExecutionState {
   RUNNING = 'running',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELED = 'canceled',
-  // RETRYING = 'retrying',
-  // PAUSED = 'paused',
+  CANCELED = 'canceled'
 }
 
 export interface Execution {

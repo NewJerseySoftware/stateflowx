@@ -1,12 +1,16 @@
-import { ServiceConfig } from './service-config.interface.js';
+import { ServiceConfig } 
+    from './service-config.interface.js';
 
 export class ServiceManager {
+
   private services = new Map<string, ServiceConfig>();
 
   constructor(services: ServiceConfig[] = []) {
+
     services.forEach((service) => {
       this.register(service);
     });
+
   }
 
   register(service: ServiceConfig) {

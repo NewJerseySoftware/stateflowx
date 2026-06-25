@@ -1,6 +1,7 @@
 import { DB } from '../db.interface.js';
 
 export class InMemoryDB implements DB {
+
   private store = new Map<string, any>();
 
   get<T = any>(key: string): T | undefined {
@@ -18,4 +19,5 @@ export class InMemoryDB implements DB {
   clear(): void {
     this.store.clear();
   }
+  
 }

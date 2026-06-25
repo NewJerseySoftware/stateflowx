@@ -1,6 +1,8 @@
-import { Transport } from '../transport.interface.js';
+import { Transport } 
+    from '../transport.interface.js';
 
 export class HttpTransport implements Transport {
+
   private messageHandler?: (
     clientId: string,
     payload: unknown
@@ -13,11 +15,13 @@ export class HttpTransport implements Transport {
   }
 
   async handleRequest(payload: unknown): Promise<unknown> {
+
     if (!this.messageHandler) {
       return;
     }
 
     return this.messageHandler('http-client', payload);
+
   }
 
   async send(): Promise<void> {}

@@ -7,14 +7,6 @@ export class GeminiProvider implements AgentProvider {
   async execute(request: ProviderExecutionRequest): Promise<string> {
     console.log('Gemini prompt:', request.prompt);
 
-    // console.log(
-    //   '[GEMINI PROVIDER API KEY]',
-    //   {
-    //     hasApiKey: !!request.apiKey,
-    //     length: request.apiKey?.length,
-    //   }
-    // );
-
     const genAI = new GoogleGenerativeAI(
       request.apiKey ?? process.env.GEMINI_API_KEY!
     );

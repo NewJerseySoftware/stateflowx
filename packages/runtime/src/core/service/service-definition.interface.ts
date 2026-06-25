@@ -1,4 +1,5 @@
 export interface HttpServiceDefinition {
+
   name: string;
 
   type: 'http';
@@ -10,6 +11,7 @@ export interface HttpServiceDefinition {
   headers?: Record<string, string>;
 
   body?: unknown;
+  
 }
 
 export type ServiceDefinition = HttpServiceDefinition;
