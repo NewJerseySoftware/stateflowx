@@ -98,14 +98,18 @@ async function bootstrap() {
     },
   });
 
-  const dispatcher = new WebSocketEventDispatcher(server);
 
-  runtime.events?.on(
-    '*',
 
-    async (event) => {
-      await dispatcher.dispatch(event);
-    }
+  //
+  // Runtime lifecycle
+  //
+  // 1. Register event dispatchers
+  // 2. Bootstrap application components
+  // 3. Initialize runtime
+  // 4. Start runtime
+  //
+  runtime.addEventDispatcher(
+    new WebSocketEventDispatcher(server)
   );
 
   bootstrapRuntime(
@@ -113,6 +117,10 @@ async function bootstrap() {
 
     runtime
   );
+
+  await runtime.initialize();
+
+  await runtime.start();
 
   console.log('StateFlowX runtime listening on ws://localhost:3001');
 }
