@@ -1,4 +1,9 @@
+import { TransportCapabilities } from "./transport-capabilities.interface.js";
+
 export interface Transport {
+
+  readonly capabilities: TransportCapabilities;
+  
   start(): Promise<void>;
 
   stop(): Promise<void>;

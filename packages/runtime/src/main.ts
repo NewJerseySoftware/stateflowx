@@ -6,13 +6,12 @@ import { WsAdapter } from '@nestjs/platform-ws';
 
 import { WebSocketServer } from 'ws';
 
-import { WebSocketRuntimeModule } from './websocket-runtime.module.js';
-
 import {
   bootstrapRuntime,
   createRuntime,
   GeminiProvider,
   RuntimeInitializeApp,
+  HttpTransport
 } from './index.js';
 
 import { JsonRpcProtocol } from './core/protocol/json-rpc/json-rpc.protocol.js';
@@ -24,17 +23,11 @@ import { WebSocketEventDispatcher } from './core/events/dispatchers/ws/websocket
 import { GoogleADKAgent } from './core/agent/google-adk-agent.js';
 
 import { GoogleAdkProvider } from './core/provider/providers/google-adk.provider.js';
+import { RuntimeModule } from './core/transport/Runtime.module.js';
 
 async function bootstrap() {
-  // const app =
-  //   await NestFactory.create(
-  //     HttpRuntimeModule,
-  //     {
-  //       cors: true,
-  //     },
-  //   );
 
-  const app = await NestFactory.create(WebSocketRuntimeModule, {
+  const app = await NestFactory.create(RuntimeModule, {
     cors: true,
   });
 
@@ -47,21 +40,23 @@ async function bootstrap() {
   await app.listen(3000);
 
   //
-  // Runtime transport server
+  // Websocket transport server
   //
   const server = new WebSocketServer({
     port: 3001,
   });
 
-  const transport = new WebSocketTransport(server);
-
-  // const transport =
-  //   app.get(HttpTransport);
+  const transports = [
+    app.get(HttpTransport),
+    new WebSocketTransport(server),
+  ]
 
   const protocol = new JsonRpcProtocol();
 
   const runtime = createRuntime({
-    transport,
+
+    transports,
+    
     protocol,
 
     agents: [

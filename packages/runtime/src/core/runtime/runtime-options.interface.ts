@@ -9,7 +9,7 @@ import { Transport } from '../transport/transport.interface.js';
 export interface RuntimeOptions {
   apiKey: string;
 
-  transport: Transport;
+  transports: Transport[];
 
   protocol: Protocol;
 

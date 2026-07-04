@@ -13,7 +13,7 @@ import { AgentConfig } from '@stateflowx/common';
 export interface CreateRuntimeConfig {
   apiKey?: string;
 
-  transport: Transport;
+  transports: Transport[];
 
   protocol: Protocol;
 

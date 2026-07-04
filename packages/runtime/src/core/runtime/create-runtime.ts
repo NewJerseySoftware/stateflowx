@@ -19,53 +19,34 @@ export function createRuntime(config: CreateRuntimeConfig) {
 
   initializeRuntimeCapabilities(runtime);
 
-  runtime.transport.onMessage(async (clientId, payload) => {
-    //
-    // Runtime ingress event
-    //
-    runtime.events?.emit({
-      id: randomUUID(),
+  for (const transport of runtime.transports) {
 
-      type: 'runtime.message.received',
+    transport.onMessage(async (clientId, payload) => {
 
-      timestamp: Date.now(),
+      runtime.events?.emit({
+        id: randomUUID(),
+        type: 'runtime.message.received',
+        timestamp: Date.now(),
+        source: 'transport',
+        payload,
+      });
 
-      source: 'transport',
+      const response = await runtime.protocol.receive(payload);
 
-      payload,
+      if (response !== undefined) {
+        await transport.send(clientId, response);
+      }
+
+      runtime.events?.emit({
+        id: randomUUID(),
+        type: 'runtime.message.completed',
+        timestamp: Date.now(),
+        source: 'runtime',
+        payload: response,
+      });
+
+      return response;
     });
-
-    const response = await runtime.protocol.receive(payload);
-
-    //
-    // Push-based transports
-    // (WebSocket, MQTT, TCP)
-    //
-    if (response !== undefined) {
-      await runtime.transport.send(clientId, response);
-    }
-
-    //
-    // Runtime response event
-    //
-    runtime.events?.emit({
-      id: randomUUID(),
-
-      type: 'runtime.message.completed',
-
-      timestamp: Date.now(),
-
-      source: 'runtime',
-
-      payload: response,
-    });
-
-    //
-    // HTTP transports will ignore
-    // transport.send() and instead return the response directly
-    //
-    return response;
-  });
-
+  }
   return runtime;
 }

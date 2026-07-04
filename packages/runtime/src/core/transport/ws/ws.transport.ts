@@ -6,8 +6,16 @@ import { Transport } from '../transport.interface.js';
 
 import { IWebSocket } from './ws.interface.js';
 import { logger } from '../../logger/logger.js';
+import { TransportCapabilities } from '../transport-capabilities.interface.js';
 
 export class WebSocketTransport implements Transport {
+
+  readonly capabilities: TransportCapabilities = {
+    duplex: true,
+    supportsEvents: true,
+    persistent: true,
+};
+
   private clients = new Map<string, IWebSocket>();
 
   private messageHandler?: (

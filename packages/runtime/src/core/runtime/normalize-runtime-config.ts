@@ -12,7 +12,11 @@ export function normalizeRuntimeConfig(
 
     db: config.db ?? new InMemoryDB(),
 
-    transport: config.transport,
+    transports: config.transports,
+
+    // transports:
+    //   config.transports ??
+    //   (config.transport ? [config.transport] : []),
 
     protocol: config.protocol,
 

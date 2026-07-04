@@ -22,69 +22,73 @@ export interface ClientApi {
 }
 
 export function createClient(config: StateFlowXConfig): ClientApi {
-  // StateFlowX currently standardizes on JSON-RPC
-  // as the runtime protocol layer.
-  //
-  // future protocol adapters MAY exist later
-  // (gRPC, REST, custom transports, etc),
-  // but V1 intentionally uses JSON-RPC
-  // for request/response protocol
+
 
   if (config.protocol.type !== 'json-rpc') {
     throw new Error(`Unsupported protocol: ${config.protocol.type}`);
   }
 
-  // TODO:
-  // HTTP transport temporarily disabled.
-  // Re-enable after lifecycle hooks and precheck()
-  // semantics are finalized.
-  // if (config.transport.type === 'http') {
-  //   return {
-  //     async connect() {
-  //       return Promise.resolve();
-  //     },
 
-  //     async request<TResponse, TParams = unknown>(
-  //       method: string,
-  //       params?: TParams
-  //     ): Promise<TResponse> {
-  //       const response = await fetch(config.transport.url, {
-  //         method: 'POST',
+  if (config.transport.type === 'http') {
+    return {
+      async connect() {
+        return Promise.resolve();
+      },
 
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
+      async request<TResponse, TParams = unknown>(
+        method: string,
+        params?: TParams
+      ): Promise<TResponse> {
+        const response = await fetch(config.transport.url, {
+          method: 'POST',
 
-  //         body: JSON.stringify({
-  //           jsonrpc: '2.0',
-  //           method,
-  //           params,
-  //           id: crypto.randomUUID(),
-  //         }),
-  //       });
+          headers: {
+            'Content-Type': 'application/json',
+          },
 
-  //       const text = await response.text();
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method,
+            params,
+            id: crypto.randomUUID(),
+          }),
+        });
 
-  //       if (!text) {
-  //         throw new Error('Empty HTTP response from StateFlowX runtime');
-  //       }
+        const text = await response.text();
 
-  //       const json = JSON.parse(text);
+        if (!text) {
+          throw new Error('Empty HTTP response from StateFlowX runtime');
+        }
 
-  //       if (json.error) {
-  //         throw new Error(json.error.message ?? 'JSON-RPC error');
-  //       }
+        const json = JSON.parse(text);
 
-  //       return json.result as TResponse;
-  //     },
+        if (json.error) {
+          throw new Error(json.error.message ?? 'JSON-RPC error');
+        }
 
-  //     onRuntimeEvent(): void {
-  //       throw new Error(
-  //         'Runtime events are not supported over HTTP transport.'
-  //       );
-  //     },
-  //   };
-  // }
+        return json.result as TResponse;
+      },
+
+      async precheck<TResponse = unknown>(
+        params?: unknown
+      ): Promise<TResponse> {
+        return this.request<TResponse>('runtime.precheck', params);
+      },
+
+      onConnect(): void {
+        // HTTP transport is connectionless
+      },
+
+      onDisconnect(): void {
+        // HTTP transport is connectionless
+      },
+
+      onRuntimeEvent(handler: (event: unknown) => void): void {
+        // HTTP transport does not support runtime event streaming.
+        // This method is intentionally a no-op
+      }
+    };
+  }
 
   if (config.transport.type === 'websocket') {
     const runtimeEventHandlers: Array<(event: unknown) => void> = [];

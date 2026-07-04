@@ -8,6 +8,7 @@ import { ProviderManager } from "../provider/provider.manager.js";
 import { ServiceManager } from "../service/service.manager.js";
 
 import { InMemoryDB } from "../storage/in-memory.db.js";
+import { Transport } from "../transport/transport.interface.js";
 
 import { ExecutionManager } from "./execution/execution-manager.js";
 
@@ -26,7 +27,7 @@ export class Runtime {
 
     readonly db;
 
-    readonly transport;
+    readonly transports: Transport[];
 
     readonly protocol;
 
@@ -48,7 +49,11 @@ export class Runtime {
 
         this.db = options.db ?? new InMemoryDB();
 
-        this.transport = options.transport;
+        this.transports = options.transports;
+
+        // this.transports =
+        //     options.transports ??
+        //     (options.transport ? [options.transport] : []);
 
         this.protocol = options.protocol;
 
