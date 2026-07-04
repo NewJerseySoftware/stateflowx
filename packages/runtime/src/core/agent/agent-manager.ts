@@ -3,35 +3,32 @@ import { AgentConfig } from '@stateflowx/common';
 import { Agent } from '@stateflowx/common';
 
 export class AgentManager {
+
   private readonly agents = new Map<string, Agent>();
 
-  constructor(agents: AgentConfig[] = []) {
-    console.log(
-      '[AGENT MANAGER CTOR]',
-      agents.length,
-      agents.map((a) => a.name)
-    );
+  readonly enabled: boolean;
+
+  constructor(
+    agents: AgentConfig[] = [],
+    enabled = true,
+  ) {
+    this.enabled = enabled;
+
+    if (!this.enabled) return;
 
     agents.forEach(({ name, agent }) => {
-      console.log('[AGENT CONFIG]', name, agent);
-
-      if (!agent) {
-        return;
-      }
+      if (!agent) return;
 
       this.register(name, agent);
     });
   }
 
-  register(name: string, agent: Agent): void {
-    this.agents.set(name, agent);
-  }
-
-  find(name: string): Agent | undefined {
-    return this.agents.get(name);
-  }
 
   async execute(name: string, payload?: unknown): Promise<unknown> {
+    if (!this.enabled) {
+      throw new Error('Agent manager is disabled.');
+    }
+
     const agent = this.find(name);
 
     if (!agent) {
@@ -41,7 +38,25 @@ export class AgentManager {
     return agent.execute(payload);
   }
 
+
+
+  private register(name: string, agent: Agent): void {
+    this.agents.set(name, agent);
+  }
+
+
+
+  find(name: string): Agent | undefined {
+    if (!this.enabled) return;
+
+    return this.agents.get(name);
+  }
+
+
+
   getAll(): Agent[] {
+    if (!this.enabled) return [];
+
     return [...this.agents.values()];
   }
 }

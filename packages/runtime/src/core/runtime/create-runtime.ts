@@ -7,6 +7,7 @@ import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
 import { normalizeRuntimeConfig } from './normalize-runtime-config.js';
 
 import { RuntimeOptions } from './runtime-options.interface.js';
+
 import { Runtime } from './Runtime.js';
 
 export function createRuntime(config: CreateRuntimeConfig) {
@@ -16,8 +17,7 @@ export function createRuntime(config: CreateRuntimeConfig) {
   const runtime =
     new Runtime(options);
 
-    //todo: initializeRuntimeCapabilities ( runtime)
-  initializeRuntimeCapabilities(options);
+  initializeRuntimeCapabilities(runtime);
 
   runtime.transport.onMessage(async (clientId, payload) => {
     //

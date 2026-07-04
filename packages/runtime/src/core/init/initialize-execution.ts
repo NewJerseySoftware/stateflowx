@@ -1,28 +1,13 @@
-import { CreateRuntimeConfig } from '../runtime/create-runtime-config.interface.js';
+import { Runtime } from '../runtime/Runtime.js';
 
-import { RuntimeOptions } from '../runtime/runtime-options.interface.js';
-
-import { initializeExecutionArtifacts } from './initialize-execution-artifacts.js';
-
-import { initializeExecutionEvents } from './initialize-execution-events.js';
+// import { initializeExecutionArtifacts } from './initialize-execution-artifacts.js';
 
 export function initializeExecution(
-  options: RuntimeOptions,
+  runtime: Runtime,
 ): void {
-  if (!options.execution?.enabled) {
+  if (!runtime.execution?.enabled) {
     return;
   }
 
   //
-  // execution events
-  if (options.execution?.events?.enabled) {
-    initializeExecutionEvents(options);
-  }
-
-  //
-  // Execution artifacts
-  //
-  if (options.execution?.artifacts?.enabled) {
-    initializeExecutionArtifacts(options);
-  }
 }

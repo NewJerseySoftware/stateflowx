@@ -142,7 +142,7 @@ export class RuntimeInitializeApp implements RuntimeApp {
                 });
 
                 const data = await service.execute();
-
+                
                 runtime.execution.complete(serviceExecutionId);
 
                 runtime.events.emit({
@@ -156,11 +156,11 @@ export class RuntimeInitializeApp implements RuntimeApp {
                 });
 
                 const enhancedPrompt = `
-          ${workflow.prompt}
+                  ${workflow.prompt}
 
-          DATA:
-          ${JSON.stringify(data)}
-        `;
+                  DATA:
+                  ${JSON.stringify(data)}
+                `;
 
                 const providerExecutionId = runtime.execution.start(
                   'provider',

@@ -5,9 +5,15 @@ import { AgentProvider } from './provider.interface.js';
 export class ProviderManager {
   private providers = new Map<string, AgentProvider>();
 
+  readonly enabled: boolean;
+
   private defaultProvider = 'gemini';
 
-  constructor(providers: ProviderConfig[] = []) {
+  constructor(
+    providers: ProviderConfig[] = [],
+    enabled = true
+  ) {
+    this.enabled = enabled;
     providers.forEach(({ name, provider }) => {
       this.register(name, provider);
     });

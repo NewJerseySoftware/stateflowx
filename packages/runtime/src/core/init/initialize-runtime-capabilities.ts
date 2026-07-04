@@ -1,16 +1,13 @@
-import { CreateRuntimeConfig } from '../runtime/create-runtime-config.interface.js';
-
-import { RuntimeOptions } from '../runtime/runtime-options.interface.js';
+import { Runtime } from '../runtime/Runtime.js';
 
 import { initializeExecution } from './initialize-execution.js';
 
 export function initializeRuntimeCapabilities(
-  options: RuntimeOptions,
+  runtime: Runtime,
 ): void {
-  //
-  // Execution capability
-  //
-  if (options.execution?.enabled) {
-    initializeExecution(options);
+
+  if (runtime.execution?.enabled) {
+    initializeExecution(runtime);
   }
+
 }

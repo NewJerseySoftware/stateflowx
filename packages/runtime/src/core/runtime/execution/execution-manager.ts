@@ -1,12 +1,22 @@
 import { randomUUID } from 'crypto';
 
 import { ExecutionEventBus } from './execution-event-bus.js';
+
 import { ExecutionContext } from '@stateflowx/common';
 
 export class ExecutionManager {
   readonly events = new ExecutionEventBus();
 
+  readonly enabled:boolean;
+
   private executions = new Map<string, ExecutionContext>();
+
+
+  constructor(enabled = true){
+    this.enabled = enabled;
+  }
+
+
 
   start(
     type: 'workflow' | 'service' | 'provider',
@@ -15,6 +25,10 @@ export class ExecutionManager {
 
     parentId?: string
   ): string {
+    if (!this.enabled) {
+        throw new Error('Execution manager is disabled.');
+    }
+
     const id = randomUUID();
 
     const execution: ExecutionContext = {
@@ -39,6 +53,8 @@ export class ExecutionManager {
   }
 
   complete(id: string): void {
+    if(!this.enabled) return;
+
     const execution = this.executions.get(id);
 
     if (!execution) {
@@ -53,6 +69,8 @@ export class ExecutionManager {
   }
 
   fail(id: string): void {
+    if(!this.enabled) return;
+
     const execution = this.executions.get(id);
 
     if (!execution) {
