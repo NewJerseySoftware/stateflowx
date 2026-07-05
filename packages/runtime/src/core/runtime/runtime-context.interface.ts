@@ -1,5 +1,3 @@
-import { DB } from '../db.interface.js';
-
 import { RuntimeEventBus } from '../events/runtime-event-bus.js';
 
 import { Protocol } from '../protocol/protocol.interface.js';
@@ -12,14 +10,15 @@ import { ExecutionManager } from './execution/execution-manager.js';
 
 import { AgentManager } from '../agent/agent-manager.js';
 
+import { Store } from '../store/in-memory.store.js';
+
 export type PromptHandler = (payload: unknown) => Promise<unknown> | unknown;
 
 export interface RuntimeContext {
+
   apiKey?: string;
 
-  db: DB;
-
-  state: Record<string, unknown>;
+  store?: Store;
 
   protocol: Protocol;
 
@@ -27,7 +26,7 @@ export interface RuntimeContext {
 
   agents: AgentManager;
 
-  providers: ProviderManager; //providers previously 'ai'
+  providers: ProviderManager;
 
   services: ServiceManager;
 

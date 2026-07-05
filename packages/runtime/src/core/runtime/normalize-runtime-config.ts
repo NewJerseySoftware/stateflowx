@@ -1,8 +1,9 @@
+import { InMemoryStore } from '../store/in-memory.db.js';
+
 import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
 
 import { RuntimeOptions } from './runtime-options.interface.js';
 
-import { InMemoryDB } from '../storage/in-memory.db.js';
 
 export function normalizeRuntimeConfig(
   config: CreateRuntimeConfig
@@ -10,13 +11,9 @@ export function normalizeRuntimeConfig(
   return {
     apiKey: config?.apiKey ?? process.env.GEMINI_API_KEY ?? '',
 
-    db: config.db ?? new InMemoryDB(),
+    store: config.store ?? new InMemoryStore(),
 
     transports: config.transports,
-
-    // transports:
-    //   config.transports ??
-    //   (config.transport ? [config.transport] : []),
 
     protocol: config.protocol,
 

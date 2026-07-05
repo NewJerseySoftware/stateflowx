@@ -1,3 +1,4 @@
+import { InMemoryStore } from "../store/in-memory.db.js";
 import { RuntimeContext } from "./runtime-context.interface.js";
 
 import { Runtime } from "./Runtime.js";
@@ -10,9 +11,7 @@ export function createRuntimeContext(
 
         apiKey: runtime.apiKey,
 
-        db: runtime.db,
-
-        state: {},
+        store: runtime.store,
 
         protocol: runtime.protocol,
 

@@ -1,10 +1,17 @@
 import { AgentConfig } from '@stateflowx/common';
-import { DB } from '../db.interface.js';
+
 import { RuntimeEventBus } from '../events/runtime-event-bus.js';
+
 import { Protocol } from '../protocol/protocol.interface.js';
+
 import { ProviderConfig } from '../provider/provider.config.interface.js';
+
 import { ServiceConfig } from '../service/service-config.interface.js';
+
 import { Transport } from '../transport/transport.interface.js';
+
+import { Store } from '../store/in-memory.store.js';
+
 
 export interface RuntimeOptions {
   apiKey: string;
@@ -33,7 +40,7 @@ export interface RuntimeOptions {
 
   events?: RuntimeEventBus;
 
-  db?: DB;
+  store?: Store | false;
 
   //flow?: unknown;
 }

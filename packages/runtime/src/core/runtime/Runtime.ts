@@ -1,4 +1,5 @@
 import { AgentManager } from "../agent/agent-manager.js";
+
 import { WebSocketEventDispatcher } from "../events/dispatchers/ws/websocket-event-dispatcher.js";
 
 import { RuntimeEventBus } from "../events/runtime-event-bus.js";
@@ -7,7 +8,10 @@ import { ProviderManager } from "../provider/provider.manager.js";
 
 import { ServiceManager } from "../service/service.manager.js";
 
-import { InMemoryDB } from "../storage/in-memory.db.js";
+import { InMemoryStore } from "../store/in-memory.db.js";
+
+import { Store } from "../store/in-memory.store.js";
+
 import { Transport } from "../transport/transport.interface.js";
 
 import { ExecutionManager } from "./execution/execution-manager.js";
@@ -25,7 +29,7 @@ export class Runtime {
 
     readonly apiKey;
 
-    readonly db;
+    readonly store?: Store;
 
     readonly transports: Transport[];
 
@@ -47,13 +51,12 @@ export class Runtime {
 
         this.apiKey = options.apiKey;
 
-        this.db = options.db ?? new InMemoryDB();
+        this.store =
+            options.store === false
+                ? undefined
+                : options.store ?? new InMemoryStore();
 
         this.transports = options.transports;
-
-        // this.transports =
-        //     options.transports ??
-        //     (options.transport ? [options.transport] : []);
 
         this.protocol = options.protocol;
 

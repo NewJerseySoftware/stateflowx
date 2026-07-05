@@ -11,29 +11,58 @@ import { createRuntime } from '../core/runtime/create-runtime.js';
 import { bootstrapRuntime } from '../core/runtime/bootstrap.js';
 
 export async function bootstrapHttpRuntime(config: any = {}) {
+
   const app = await NestFactory.create(HttpRuntimeModule, {
     cors: true,
   });
 
-  const transport = app.get(HttpTransport);
+  const transport =
+    app.get(HttpTransport);
 
-  const protocol = new JsonRpcProtocol();
+  const protocol =
+    new JsonRpcProtocol();
 
-  const runtime = createRuntime({
-    transport,
+  const runtime =
+    createRuntime({
 
-    protocol,
+      transports: [
+        transport,
+      ],
 
-    ...config,
-  });
+      protocol,
 
-  bootstrapRuntime(config.apps ?? [], runtime);
+      ...config,
+    });
 
-  const port = config.port ?? 3000;
+  //
+  // Runtime lifecycle
+  //
+  // 1. Bootstrap application components
+  // 2. Initialize runtime
+  // 3. Start runtime
+  //
+  bootstrapRuntime(
+    config.apps ?? [],
+
+    runtime
+  );
+
+  await runtime.initialize();
+
+  await runtime.start();
+
+  const port =
+    config.port ?? 3000;
 
   await app.listen(port);
 
-  console.log(`StateFlowX runtime listening on http://localhost:${port}/rpc`);
+  console.log(
+    `StateFlowX runtime listening on http://localhost:${port}/rpc`
+  );
 
-  return app;
+  return {
+    app,
+    runtime,
+    transport,
+  };
 }

@@ -1,5 +1,3 @@
-import { DB } from '../db.interface.js';
-
 import { ProviderConfig } from '../provider/provider.config.interface.js';
 
 import { ServiceConfig } from '../service/service-config.interface.js';
@@ -9,6 +7,8 @@ import { Transport } from '../transport/transport.interface.js';
 import { Protocol } from '../protocol/protocol.interface.js';
 
 import { AgentConfig } from '@stateflowx/common';
+
+import { InMemoryStore } from '../store/in-memory.db.js';
 
 export interface CreateRuntimeConfig {
   apiKey?: string;
@@ -35,5 +35,5 @@ export interface CreateRuntimeConfig {
     };
   };
 
-  db?: DB;
+  store?: InMemoryStore;
 }

@@ -1,19 +1,21 @@
 # @stateflowx/runtime
 
-StateFlowX Runtime is a lightweight orchestration runtime for building operational workflows, realtime systems, and AI-driven execution pipelines using pluggable transports, providers, and realtime runtime events.
+StateFlowX Runtime is a lightweight orchestration runtime for building AI-powered workflows using pluggable protocols, transports, providers, and services.
 
 ## Features
 
-- JSON-RPC over WebSockets
+- JSON-RPC protocol support
+- HTTP transport
+- WebSocket transport
+- Multi-transport runtime architecture
 - Runtime composition
+- Runtime lifecycle management
 - Runtime event streaming
 - Workflow lifecycle events
-- Realtime observability foundation
 - Dynamic workflow registration
 - Pluggable provider architecture
-- Service orchestration foundation
-- Realtime execution flow
-- NestJS-based runtime infrastructure
+- Service orchestration
+- Realtime observability foundation
 
 ---
 
@@ -33,14 +35,15 @@ Minimal external runtime host example:
 
 This demonstrates:
 
-- external npm package consumption
-- WebSocket runtime hosting
-- JSON-RPC transport
-- dynamic runtime initialization
-- workflow execution
-- runtime event streaming
+- External npm package consumption
+- HTTP JSON-RPC hosting
+- WebSocket JSON-RPC hosting
+- Multi-transport runtime configuration
+- Dynamic runtime initialization
+- Runtime lifecycle management
+- Workflow execution
+- Runtime event streaming
 - Gemini provider integration
-- remote workflow execution
 
 ---
 
@@ -50,84 +53,56 @@ This demonstrates:
 import 'dotenv/config';
 
 import {
-  createRuntime,
-  bootstrapRuntime,
+  bootstrapHttpRuntime,
   RuntimeInitializeApp,
   GeminiProvider,
-  JsonRpcProtocol,
   WebSocketTransport,
   WebSocketEventDispatcher,
 } from '@stateflowx/runtime';
 
 import { WebSocketServer } from 'ws';
 
-const server = new WebSocketServer({
-  port: 3001,
-});
-
-const transport = new WebSocketTransport(server);
-
-const protocol = new JsonRpcProtocol();
-
-const runtime = createRuntime({
-  transport,
-
-  protocol,
+const {
+  runtime,
+} = await bootstrapHttpRuntime({
 
   providers: [
     {
-      name: 'default',
+      name: 'gemini',
 
       provider: new GeminiProvider(),
     },
   ],
 
   services: [],
+
+  apps: [
+    new RuntimeInitializeApp(),
+  ],
 });
 
-//
-// Realtime runtime event dispatcher
-//
-const dispatcher = new WebSocketEventDispatcher(server);
+const server = new WebSocketServer({
+  port: 3001,
+});
 
-runtime.events.on(
-  '*',
+const websocket =
+  new WebSocketTransport(server);
 
-  async (event) => {
-    await dispatcher.dispatch(event);
-  }
+runtime.transports.push(websocket);
+
+runtime.addEventDispatcher(
+  new WebSocketEventDispatcher(server)
 );
 
-bootstrapRuntime(
-  [new RuntimeInitializeApp()],
+console.log(`
+HTTP JSON-RPC:
+http://localhost:3000/rpc
 
-  runtime
-);
-
-console.log('StateFlowX runtime listening on ws://localhost:3001');
+WebSocket JSON-RPC:
+ws://localhost:3001
+`);
 ```
 
----
-
-## Architecture
-
-```text
-Client
-  ->
-WebSocket Transport
-  ->
-JSON-RPC Protocol
-  ->
-StateFlowX Runtime
-  ->
-Workflow Execution
-  ->
-Services / Providers
-  ->
-Runtime Events
-  ->
-Realtime Client Observability
-```
 
 ---
 
@@ -135,37 +110,52 @@ Realtime Client Observability
 
 ```text
 workflow.started
-  ->
+        │
 service.execute
-  ->
+        │
 provider.generate
-  ->
+        │
 workflow.completed
-  ->
-realtime websocket event stream
+        │
+WebSocket runtime event stream
 ```
 
 ---
 
 ## Current Transport Support
 
-StateFlowX V1 currently standardizes on:
+StateFlowX Runtime currently supports:
 
-- JSON-RPC
+- JSON-RPC protocol
+- HTTP transport
 - WebSocket transport
-- realtime runtime event streaming
+- Realtime runtime events over WebSockets
 
-Additional transport and protocol adapters may be explored in future releases.
+---
+
+## Roadmap
+
+- Additional protocol support
+- Runtime observability tooling
+- Execution tracing
+- Expanded workflow orchestration
+- Provider fallback strategies
+- Service execution events
+- Provider execution events
+- Streaming execution support
 
 ---
 
 ## Related Demos
 
-- React Client Demo:
+- React Client Demo  
   <https://github.com/bws9000/react-stateflowx-demo>
+
+- Angular Client Demo  
+  <https://github.com/bws9000/stateflowx-client-demo>
 
 ---
 
 ## Current Status
 
-StateFlowX Runtime is currently experimental and under active development.
+StateFlowX Runtime is experimental and under active development.

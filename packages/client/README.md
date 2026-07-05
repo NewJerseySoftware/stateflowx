@@ -1,24 +1,22 @@
 # @stateflowx/client
 
-StateFlowX Client is a lightweight SDK for communicating with StateFlowX runtimes over JSON-RPC and realtime WebSocket transports.
+StateFlowX Client is a lightweight SDK for communicating with StateFlowX runtimes over JSON-RPC using configurable HTTP and WebSocket transports.
 
-The client supports runtime workflow execution, realtime runtime events, and live orchestration observability.
+The client supports runtime workflow execution, optional realtime runtime events, and transport-independent orchestration.
 
 ---
 
 ## Features
 
 - JSON-RPC client support
+- HTTP transport support
 - WebSocket transport support
-- Runtime event streaming
-- Workflow lifecycle event support
-- Realtime orchestration connectivity
-- Transport abstraction
-- Lightweight runtime connectivity
-- Framework-agnostic architecture
 - Runtime workflow execution
+- Optional runtime event streaming
+- Runtime lifecycle support
+- Transport abstraction
+- Framework-agnostic architecture
 - Dynamic runtime initialization
-- Realtime runtime observability foundation
 
 ---
 
@@ -30,16 +28,21 @@ npm install @stateflowx/client
 
 ---
 
-## Basic WebSocket Example
+## Basic Example
 
 ```ts
-import {
-  createClient,
-  defineConfig,
-  jsonRpc,
-  websocket,
-} from '@stateflowx/client';
+const config = defineConfig({
+  protocol: jsonRpc(),
 
+  transport: http({
+    url: 'http://localhost:3000/rpc',
+  }),
+});
+```
+
+## WebSocket Example
+
+```ts
 const config = defineConfig({
   protocol: jsonRpc(),
 
@@ -47,15 +50,13 @@ const config = defineConfig({
     url: 'ws://localhost:3001',
   }),
 });
-
-const client = createClient(config);
-
-await client.connect();
 ```
 
 ---
 
 ## Runtime Event Streaming Example
+
+Runtime event streaming is available when using the WebSocket transport.
 
 ```ts
 client.onRuntimeEvent((event) => {
@@ -77,7 +78,7 @@ const result = await client.request('weather.execute');
 
 ## Purpose
 
-The client package is designed to communicate with StateFlowX runtimes while remaining lightweight, transport-oriented, and realtime-event capable.
+The StateFlowX Client provides a lightweight, transport-independent API for communicating with StateFlowX runtimes.
 
 The architecture separates:
 
@@ -87,17 +88,17 @@ The architecture separates:
 - workflow orchestration
 - runtime event streaming
 
-allowing the client to remain decoupled from specific orchestration implementations.
+allowing applications to communicate with the runtime over different transports while remaining decoupled from workflow execution and orchestration details.
 
 Current areas of focus include:
 
 - Runtime workflow execution
 - JSON-RPC communication
-- Realtime runtime events
+- HTTP and WebSocket transports
+- Realtime runtime event streaming
 - Workflow lifecycle observability
 - Transport abstraction
-- Realtime orchestration systems
-- AI workflow interaction patterns
+- AI workflow interaction
 
 ---
 
@@ -167,11 +168,12 @@ client runtime event stream
 
 ## Current Transport Support
 
-StateFlowX Client V1 currently standardizes on:
+StateFlowX Client currently supports:
 
-- JSON-RPC
+- JSON-RPC protocol
+- HTTP transport
 - WebSocket transport
-- realtime runtime event streaming
+- Realtime runtime event streaming over WebSockets
 
 Additional transport and protocol adapters may be explored in future releases.
 
@@ -188,14 +190,14 @@ Example Angular client implementation:
 ## Roadmap
 
 - Additional protocol support
-- Additional transport layers
 - Runtime observability tooling
 - Execution tracing
+- Streaming execution support
 - Expanded workflow orchestration
 - Provider fallback strategies
-- Service execution events
-- Provider execution events
-- Streaming execution support
+- Artifact generation
+- Database persistence
+- Distributed runtime support
 
 ---
 

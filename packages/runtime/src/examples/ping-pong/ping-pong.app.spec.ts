@@ -1,33 +1,63 @@
 import { JSONRPCServer } from 'json-rpc-2.0';
 import { describe, beforeEach, expect, it } from '@jest/globals';
+
 import { JsonRpcProtocol } from '../../core/protocol/json-rpc/json-rpc.protocol.js';
-import { InMemoryDB } from '../../core/storage/in-memory.db.js';
+import { InMemoryStore } from '../../core/store/in-memory.db.js';
 import { PingPongApp } from './ping-pong.app.js';
 import { bootstrapRuntime } from '../../core/runtime/bootstrap.js';
+import { Runtime } from '../../core/runtime/Runtime.js';
 
 describe('PingPongApp', () => {
+
   let server: JSONRPCServer;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+
     server = new JSONRPCServer();
 
-    bootstrapRuntime([new PingPongApp()], {
-      transport: {
-        onMessage: () => {},
-        send: async () => {},
-        start: async () => {},
-        stop: async () => {},
-      },
+    const runtime = new Runtime({
+
+      apiKey: '',
+
+      transports: [
+        {
+          capabilities: {
+            duplex: false,
+            supportsEvents: false,
+            persistent: false,
+          },
+
+          onMessage: () => {},
+
+          send: async () => {},
+
+          start: async () => {},
+
+          stop: async () => {},
+        },
+      ],
+
+      protocol: new JsonRpcProtocol(server),
 
       providers: [],
 
-      db: new InMemoryDB(),
+      services: [],
 
-      protocol: new JsonRpcProtocol(server),
+      store: new InMemoryStore(),
+
     });
+
+    await runtime.initialize();
+
+    bootstrapRuntime(
+      [new PingPongApp()],
+      runtime
+    );
+
   });
 
   it('should respond to ping', async () => {
+
     const result = await server.receive({
       jsonrpc: '2.0',
       method: 'ping',
@@ -43,9 +73,11 @@ describe('PingPongApp', () => {
         time: expect.any(Number),
       },
     });
+
   });
 
   it('should increment counter', async () => {
+
     await server.receive({
       jsonrpc: '2.0',
       method: 'increment',
@@ -67,5 +99,7 @@ describe('PingPongApp', () => {
         time: expect.any(Number),
       },
     });
+
   });
+
 });

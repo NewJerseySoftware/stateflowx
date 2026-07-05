@@ -4,7 +4,10 @@ import { ExecutionEventBus } from './execution-event-bus.js';
 
 import { ExecutionContext } from '@stateflowx/common';
 
+import { Store } from '../../store/in-memory.store.js';
+
 export class ExecutionManager {
+
   readonly events = new ExecutionEventBus();
 
   readonly enabled:boolean;
@@ -12,7 +15,10 @@ export class ExecutionManager {
   private executions = new Map<string, ExecutionContext>();
 
 
-  constructor(enabled = true){
+  constructor(
+    private readonly store?: Store,
+    enabled = true
+  ){
     this.enabled = enabled;
   }
 

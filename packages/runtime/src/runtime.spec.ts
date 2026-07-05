@@ -13,19 +13,23 @@ import { HttpTransport } from './core/transport/http/http.transport.js';
 import { RuntimeInitializeApp } from './core/runtime/runtime-app-init.js';
 
 describe('Runtime HTTP Transport', () => {
+
   it('should initialize and execute workflow over HTTP transport', async () => {
-    const transport = new HttpTransport();
+
+    const transports = [new HttpTransport()];
 
     const protocol = new JsonRpcProtocol(new JSONRPCServer());
 
     const runtime = createRuntime({
-      transport,
+
+      transports,
 
       protocol,
 
       providers: [],
 
       services: [],
+
     });
 
     bootstrapRuntime([new RuntimeInitializeApp()], runtime);
@@ -33,7 +37,8 @@ describe('Runtime HTTP Transport', () => {
     //
     // Initialize runtime
     //
-    const initializeResponse = await transport.handleRequest({
+    const initializeResponse = await transports[0].handleRequest({
+
       jsonrpc: '2.0',
 
       method: 'runtime.initialize',
@@ -65,9 +70,11 @@ describe('Runtime HTTP Transport', () => {
       },
 
       id: 1,
+
     });
 
     expect(initializeResponse).toEqual({
+
       jsonrpc: '2.0',
 
       id: 1,
@@ -75,22 +82,27 @@ describe('Runtime HTTP Transport', () => {
       result: {
         success: true,
       },
+
     });
+
   });
 
   it('should initialize and execute workflow over HTTP transport', async () => {
-    const transport = new HttpTransport();
+
+    const transports = [new HttpTransport()];
 
     const protocol = new JsonRpcProtocol(new JSONRPCServer());
 
     const runtime = createRuntime({
-      transport,
+
+      transports,
 
       protocol,
 
       providers: [],
 
       services: [],
+
     });
 
     bootstrapRuntime([new RuntimeInitializeApp()], runtime);
@@ -98,7 +110,8 @@ describe('Runtime HTTP Transport', () => {
     //
     // Initialize runtime
     //
-    const initializeResponse = await transport.handleRequest({
+    const initializeResponse = await transports[0].handleRequest({
+
       jsonrpc: '2.0',
 
       method: 'runtime.initialize',
@@ -130,9 +143,11 @@ describe('Runtime HTTP Transport', () => {
       },
 
       id: 1,
+
     });
 
     expect(initializeResponse).toEqual({
+
       jsonrpc: '2.0',
 
       id: 1,
@@ -140,6 +155,9 @@ describe('Runtime HTTP Transport', () => {
       result: {
         success: true,
       },
+
     });
+
   });
+
 });
