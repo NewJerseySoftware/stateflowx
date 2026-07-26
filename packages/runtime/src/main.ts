@@ -23,7 +23,10 @@ import { WebSocketEventDispatcher } from './core/events/dispatchers/ws/websocket
 import { GoogleADKAgent } from './core/agent/google-adk-agent.js';
 
 import { GoogleAdkProvider } from './core/provider/providers/google-adk.provider.js';
+
 import { RuntimeModule } from './core/transport/Runtime.module.js';
+
+import { OpenAIProvider } from './core/provider/providers/openai.provider.js';
 
 async function bootstrap() {
 
@@ -71,6 +74,11 @@ async function bootstrap() {
         name: 'gemini',
 
         provider: new GeminiProvider(),
+      },
+      {
+        name: 'openai',
+        provider: new OpenAIProvider()
+
       },
       {
         name: 'google-adk',

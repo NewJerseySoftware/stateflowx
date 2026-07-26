@@ -5,6 +5,7 @@ import { RuntimeContext } from '../../core/runtime/runtime-context.interface.js'
 import { logger } from '../../core/logger/logger.js';
 
 import { createHttpService } from '../service/providers/http.service.js';
+import { RuntimeInitializationConfig } from './runtime-initialization-config.interface.js';
 
 export class RuntimeInitializeApp implements RuntimeApp {
   register(runtime: RuntimeContext) {
@@ -16,14 +17,21 @@ export class RuntimeInitializeApp implements RuntimeApp {
           throw new Error('Invalid runtime config payload');
         }
 
-        const config = payload as {
-          apiKey?: string;
-        };
+        const config = payload as RuntimeInitializationConfig;
 
+        const providerName = config.providers[0]?.type;
         const apiKey = config.apiKey ?? runtime.apiKey;
 
+
+        console.log("config.apiKey:", config.apiKey);
+        console.log("runtime.apiKey:", runtime.apiKey);
+        console.log("resolved apiKey:", apiKey);
+
         if (runtime.providers.precheck) {
-          await runtime.providers.precheck(apiKey);
+          await runtime.providers.precheck(
+            apiKey,
+            providerName
+          );
         }
 
         return {
@@ -73,7 +81,7 @@ export class RuntimeInitializeApp implements RuntimeApp {
           {
             hasApiKey: !!config.apiKey,
           },
-          'Gemini API key received'
+          'API key received from client'
         );
 
         //
@@ -142,7 +150,7 @@ export class RuntimeInitializeApp implements RuntimeApp {
                 });
 
                 const data = await service.execute();
-                
+
                 runtime.execution.complete(serviceExecutionId);
 
                 runtime.events.emit({
