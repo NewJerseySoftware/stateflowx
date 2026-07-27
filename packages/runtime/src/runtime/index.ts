@@ -10,6 +10,4 @@ export * from '../core/service/service-config.interface.js';
 
 export * from '../core/provider/providers/gemini.provider.js';
 
-export * from '../core/provider/providers/openai.provider.js';
-
 export * from '../core/logger/logger.js';
