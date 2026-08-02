@@ -1,14 +1,16 @@
 import { logger } from '../logger/logger.js';
+
+import { RegisteredAgentProvider } from './agent-provider-registration.interface.js';
+
 import { ProviderExecutionRequest } from './provider-execution-request.interface.js';
+
 import { ProviderConfig } from './provider.config.interface.js';
-import { AgentProvider } from './provider.interface.js';
 
 export class ProviderManager {
-  private providers = new Map<string, AgentProvider>();
+
+  private providers = new Map<string, RegisteredAgentProvider>();
 
   readonly enabled: boolean;
-
-  private defaultProvider?: string;
 
   constructor(
     providers: ProviderConfig[] = [],
@@ -16,55 +18,103 @@ export class ProviderManager {
   ) {
     this.enabled = enabled;
 
-    providers.forEach(({ name, provider }) => {
-      this.register(name, provider);
+    providers.forEach((config, index) => {
+      this.register({
+        name: config.name,
+        retry: {
+          attempts: 3,
+          delay: 1000,
+        },
+        timeout: 30000,
+        // priority: doesn't matter here,
+        provider: config.provider,
+      });
     });
   }
 
-  setDefaultProvider(name: string): void {
-    if (!this.providers.has(name)) {
-      throw new Error(` Cannot set default provider. Provider not found: ${name}`);
+
+  setPriority(name: string, priority: number): void {
+    const provider = this.get(name);
+    provider.priority = priority;
+  }
+
+  private getHighestPriorityProvider(): RegisteredAgentProvider {
+
+    const providers = [...this.providers.values()];
+
+    if (providers.length === 0) {
+      throw new Error('No providers configured.');
     }
 
-    this.defaultProvider = name;
-
-    logger.info(
-      {
-        provider: name,
-      },
-      'Default provider set'
+    return providers.reduce((highest, current) =>
+      (current.priority ?? Number.MAX_SAFE_INTEGER) <
+        (highest.priority ?? Number.MAX_SAFE_INTEGER)
+        ? current
+        : highest
     );
+  }
+
+  private getFallbackProviders(
+    selectedProvider: string
+  ): RegisteredAgentProvider[] {
+    return [...this.providers.values()]
+      .filter(provider => provider.name !== selectedProvider)
+      .sort((a, b) =>
+        (a.priority ?? Number.MAX_SAFE_INTEGER) -
+        (b.priority ?? Number.MAX_SAFE_INTEGER)
+      );
+    // .sort((a, b) =>
+    //   (b.priority ?? Number.NEGATIVE_INFINITY) -
+    //   (a.priority ?? Number.NEGATIVE_INFINITY)
+    // );
   }
 
   private resolveProvider(providerName?: string): string {
-    if (!providerName || providerName === 'default') {
-      if (!this.defaultProvider) {
-        throw new Error('No default provider configured..');
-      }
 
-      return this.defaultProvider;
+    //workflow explicit provider
+    if (providerName && providerName !== 'default') {
+
+      return providerName;
     }
 
-    return providerName;
-  }
+    const providers = [...this.providers.values()];
 
-  register(name: string, provider: AgentProvider): void {
+    if (providers.length === 0) {
+      return 'gemini';
+    }
+
+    if (providers.length === 1) {
+      return providers[0].name;
+    }
+
+    const selected = this.getHighestPriorityProvider();
+
     logger.info(
       {
-        provider: name,
+        provider: selected.name,
+        priority: selected.priority,
       },
-      'Provider registered'
+      'Provider selected by priority'
     );
 
-    this.providers.set(name, provider);
-
-    //  first registered becomes is default
-    if (!this.defaultProvider) {
-      this.defaultProvider = name;
-    }
+    return selected.name;
   }
 
-  get(name: string): AgentProvider {
+  register(provider: RegisteredAgentProvider): void {
+
+    logger.info(
+      {
+        provider: provider.name,
+        priority: provider.priority,
+      },
+      'Provider ready'
+    );
+
+    this.providers.set(provider.name, provider);
+  }
+
+  get(name: string): RegisteredAgentProvider {
+
     const provider = this.providers.get(name);
 
     if (!provider) {
@@ -74,37 +124,124 @@ export class ProviderManager {
     return provider;
   }
 
+  private async executeProvider(
+    provider: RegisteredAgentProvider,
+    request: ProviderExecutionRequest
+  ): Promise<string> {
+
+    return provider.provider.execute(request);
+  }
+
   async execute(
     providerName: string | undefined,
     request: ProviderExecutionRequest
   ): Promise<string> {
-    const resolvedProvider = this.resolveProvider(providerName);
 
-    logger.info(
-      {
-        provider: resolvedProvider,
-      },
-      'Executing provider'
+    ///
+    // First choice:
+    // - workflow provider if specified
+    // - otherwise automatic selection
+    //
+    const selected = this.get(
+      this.resolveProvider(providerName)
     );
 
-    return this.get(resolvedProvider).execute(request);
+    if (providerName && providerName !== 'default') {
+
+      logger.info(
+        {
+          provider: selected.name,
+        },
+        'Workflow overrides provider priority'
+      );
+
+    }
+
+    const providers = [
+      selected,
+      ...this.getFallbackProviders(selected.name),
+    ];
+
+    let lastError: unknown;
+
+    for (const provider of providers) {
+
+      try {
+
+        logger.info(
+          {
+            provider: provider.name,
+          },
+          'Executing provider'
+        );
+
+        return await this.executeProvider(
+          provider,
+          request
+        );
+
+      } catch (error) {
+
+        lastError = error;
+
+        logger.warn(
+          {
+            provider: provider.name,
+          },
+          'Provider failed. Trying next provider.'
+        );
+      }
+    }
+
+    throw lastError;
   }
+
+
 
   async precheck(
     apiKey?: string,
     providerName?: string
   ): Promise<boolean> {
-    const resolvedProvider = this.resolveProvider(providerName);
 
-    logger.info(
-      {
-        provider: resolvedProvider,
-      },
-      'Prechecking provider'
+    const selected = this.get(
+      this.resolveProvider(providerName)
     );
 
-    await this.get(resolvedProvider).precheck?.(apiKey);
+    const providers = [
+      selected,
+      ...this.getFallbackProviders(selected.name),
+    ];
 
-    return true;
+    let lastError: unknown;
+
+    for (const provider of providers) {
+
+      try {
+
+        logger.info(
+          {
+            provider: provider.name,
+          },
+          'Prechecking provider'
+        );
+
+        await provider.provider.precheck?.(apiKey);
+
+        return true;
+
+      } catch (error) {
+
+        lastError = error;
+
+        logger.warn(
+          {
+            provider: provider.name,
+          },
+          'Provider precheck failed. Trying next provider.'
+        );
+      }
+    }
+
+    throw lastError;
   }
 }

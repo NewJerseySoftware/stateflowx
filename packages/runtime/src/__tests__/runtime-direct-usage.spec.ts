@@ -4,6 +4,10 @@ import { createRuntime } from '../core/runtime/create-runtime.js';
 
 import { GeminiProvider } from '../core/provider/providers/gemini.provider.js';
 
+
+import { OpenAIProvider } from '../core/provider/providers/openai.provider.js';
+
+
 describe('Runtime Direct Usage', () => {
 
   it('should bootstrap runtime without client sdk', async () => {
@@ -48,6 +52,12 @@ describe('Runtime Direct Usage', () => {
         {
           name: 'gemini',
           provider: new GeminiProvider(),
+          priority: 10,
+        },
+        {
+          name: 'openai',
+          provider: new OpenAIProvider(),
+          priority: 100,
         },
       ],
 

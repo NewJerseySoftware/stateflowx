@@ -14,7 +14,7 @@ import { Store } from '../store/in-memory.store.js';
 
 
 export interface RuntimeOptions {
-  apiKey: string;
+  // apiKey: string;
 
   transports: Transport[];
 

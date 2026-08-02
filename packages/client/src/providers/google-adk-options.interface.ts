@@ -6,7 +6,7 @@ export interface GoogleAdkOptions extends ProviderOptions {
 
 export function googleAdk(options: GoogleAdkOptions = {}) {
   return {
-    type: 'googleAdk',
+   name: 'googleAdk',
     ...options,
   };
 }

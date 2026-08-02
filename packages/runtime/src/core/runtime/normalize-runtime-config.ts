@@ -9,12 +9,12 @@ export function normalizeRuntimeConfig(
   config: CreateRuntimeConfig
 ): RuntimeOptions {
   return {
-    apiKey:
-      config?.apiKey ??
-      process.env.OPENAI_API_KEY ??
-      process.env.GEMINI_API_KEY ??
-      process.env.GOOGLE_ADK_API_KEY ??
-      '',
+    // apiKey:
+    //   config?.apiKey ??
+    //   process.env.OPENAI_API_KEY ??
+    //   process.env.GEMINI_API_KEY ??
+    //   process.env.GOOGLE_ADK_API_KEY ??
+    //   '',
     store: config.store ?? new InMemoryStore(),
 
     transports: config.transports,

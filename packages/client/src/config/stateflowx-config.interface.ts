@@ -36,7 +36,7 @@ export interface StateFlowXConfig {
 
     service: string;
 
-    provider: string;
+    provider?: string;
 
     prompt: string;
   }>;

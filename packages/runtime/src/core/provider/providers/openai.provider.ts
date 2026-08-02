@@ -1,15 +1,20 @@
 import OpenAI from 'openai';
 
-import { AgentProvider } from '../provider.interface.js';
-import { ProviderExecutionRequest } from '../provider-execution-request.interface.js';
+import {
+  AgentProvider,
+  ProviderExecutionRequest,
+} from '../provider-execution-request.interface.js';
 
 export class OpenAIProvider implements AgentProvider {
-  async execute(request: ProviderExecutionRequest): Promise<string> {
+
+  async execute(
+    request: ProviderExecutionRequest
+  ): Promise<string> {
 
     console.log('OpenAI prompt:', request.prompt);
 
     const client = new OpenAI({
-      apiKey: request.apiKey ?? process.env.OPENAI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
     const response = await client.responses.create({
@@ -24,10 +29,10 @@ export class OpenAIProvider implements AgentProvider {
     return text;
   }
 
-  async precheck(apiKey?: string): Promise<void> {
+  async precheck(): Promise<void> {
 
     const client = new OpenAI({
-      apiKey: apiKey ?? process.env.OPENAI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
     await client.responses.create({

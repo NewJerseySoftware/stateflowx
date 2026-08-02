@@ -11,7 +11,8 @@ import {
   createRuntime,
   GeminiProvider,
   RuntimeInitializeApp,
-  HttpTransport
+  HttpTransport,
+  MockProvider
 } from './index.js';
 
 import { JsonRpcProtocol } from './core/protocol/json-rpc/json-rpc.protocol.js';
@@ -59,7 +60,7 @@ async function bootstrap() {
   const runtime = createRuntime({
 
     transports,
-    
+
     protocol,
 
     agents: [
@@ -72,17 +73,21 @@ async function bootstrap() {
     providers: [
       {
         name: 'gemini',
-
         provider: new GeminiProvider(),
       },
       {
         name: 'openai',
-        provider: new OpenAIProvider()
-
+        provider: new OpenAIProvider(),
+      },
+      {
+        name: 'mock',
+        provider: new MockProvider(),
       },
       {
         name: 'google-adk',
-        provider: new GoogleAdkProvider(new GoogleADKAgent('weather-agent')),
+        provider: new GoogleAdkProvider(
+          new GoogleADKAgent('weather-agent')
+        ),
       },
     ],
 

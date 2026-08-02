@@ -1,30 +1,53 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-import { AgentProvider } from '../provider.interface.js';
-import { ProviderExecutionRequest } from '../provider-execution-request.interface.js';
+import {
+  AgentProvider,
+  ProviderExecutionRequest,
+} from '../provider-execution-request.interface.js';
 
 export class GeminiProvider implements AgentProvider {
-  async execute(request: ProviderExecutionRequest): Promise<string> {
-    console.log('Gemini prompt:', request.prompt);
 
-    const genAI = new GoogleGenerativeAI(
-      request.apiKey ?? process.env.GEMINI_API_KEY!
-    );
+  async execute(
+    request: ProviderExecutionRequest
+  ): Promise<string> {
 
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
-    });
+    try {
 
-    const result = await model.generateContent(request.prompt);
+      console.log('Gemini prompt:', request.prompt);
 
-    const text = result.response.text();
+      const genAI = new GoogleGenerativeAI(
+        process.env.GEMINI_API_KEY!
+      );
 
-    console.log('Gemini response:', text);
-    return text;
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash',
+      });
+
+      const result =
+        await model.generateContent(request.prompt);
+
+      const text = result.response.text();
+
+      console.log('Gemini response:', text);
+
+      return text;
+
+    } catch (error) {
+
+      console.error(
+        'Gemini execution failed:',
+        error
+      );
+
+      throw error;
+    }
   }
 
-  async precheck(apiKey?: string): Promise<void> {
-    const genAI = new GoogleGenerativeAI(apiKey ?? process.env.GEMINI_API_KEY!);
+  async precheck(): Promise<void> {
+
+    const genAI = new GoogleGenerativeAI(
+      process.env.GEMINI_API_KEY!
+    );
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',

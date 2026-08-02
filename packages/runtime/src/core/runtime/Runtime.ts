@@ -27,7 +27,7 @@ export class Runtime {
 
     private started = false;
 
-    readonly apiKey;
+    // readonly apiKey;
 
     readonly store?: Store;
 
@@ -49,7 +49,7 @@ export class Runtime {
 
     constructor(options: RuntimeOptions) {
 
-        this.apiKey = options.apiKey;
+        //this.apiKey = options.apiKey;
 
         this.store =
             options.store === false

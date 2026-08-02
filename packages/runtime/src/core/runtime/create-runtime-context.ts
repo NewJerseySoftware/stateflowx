@@ -9,7 +9,7 @@ export function createRuntimeContext(
 
     return {
 
-        apiKey: runtime.apiKey,
+        //apiKey: runtime.apiKey,
 
         store: runtime.store,
 

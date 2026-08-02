@@ -5,6 +5,7 @@ import { RuntimeContext } from '../../core/runtime/runtime-context.interface.js'
 import { logger } from '../../core/logger/logger.js';
 
 import { createHttpService } from '../service/providers/http.service.js';
+
 import { RuntimeInitializationConfig } from './runtime-initialization-config.interface.js';
 
 export class RuntimeInitializeApp implements RuntimeApp {
@@ -23,9 +24,7 @@ export class RuntimeInitializeApp implements RuntimeApp {
         const apiKey = config.apiKey ?? runtime.apiKey;
 
 
-        console.log("config.apiKey:", config.apiKey);
-        console.log("runtime.apiKey:", runtime.apiKey);
-        console.log("resolved apiKey:", apiKey);
+
 
         if (runtime.providers.precheck) {
           await runtime.providers.precheck(
@@ -52,6 +51,11 @@ export class RuntimeInitializeApp implements RuntimeApp {
         const config = payload as {
           apiKey?: string;
 
+          providers?: Array<{
+            name: string;
+            priority: number;
+          }>;
+
           services?: Array<{
             name: string;
 
@@ -71,7 +75,7 @@ export class RuntimeInitializeApp implements RuntimeApp {
 
             service: string;
 
-            provider: string;
+            provider?: string;
 
             prompt: string;
           }>;
@@ -83,6 +87,24 @@ export class RuntimeInitializeApp implements RuntimeApp {
           },
           'API key received from client'
         );
+
+
+        //
+        // CONFIGURE PROVIDERS
+        //
+        config.providers?.forEach(provider => {
+          runtime.providers.setPriority(
+            provider.name,
+            provider.priority
+          );
+          // console.log('CONFIG PROVIDERS:', config.providers);
+
+          // config.providers?.forEach(provider => {
+          //   console.log('PROVIDER OBJECT:', provider);
+          // });
+        });
+
+
 
         //
         // REGISTER SERVICES
@@ -172,7 +194,7 @@ export class RuntimeInitializeApp implements RuntimeApp {
 
                 const providerExecutionId = runtime.execution.start(
                   'provider',
-                  workflow.provider,
+                  workflow.provider ?? 'default',
                   workflowExecutionId
                 );
 
