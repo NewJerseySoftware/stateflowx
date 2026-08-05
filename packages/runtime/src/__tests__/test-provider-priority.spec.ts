@@ -3,22 +3,19 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { ProviderManager } from '../core/provider/provider.manager.js';
 import { AgentProvider } from '../core/provider/agent-provider.interface.js';
 
-
-
 describe('Provider Priority', () => {
 
     it('should execute the highest priority provider by default', async () => {
 
-        const highExecute = jest.fn(async () => 'openai');
-
-        const lowExecute = jest.fn(async () => 'gemini');
+        const openaiExecute = jest.fn(async () => 'openai');
+        const geminiExecute = jest.fn(async () => 'gemini');
 
         const openaiProvider: AgentProvider = {
-            execute: highExecute,
+            execute: openaiExecute,
         };
 
         const geminiProvider: AgentProvider = {
-            execute: lowExecute,
+            execute: geminiExecute,
         };
 
         const manager = new ProviderManager([
@@ -30,7 +27,7 @@ describe('Provider Priority', () => {
             {
                 name: 'openai',
                 provider: openaiProvider,
-                priority: 100,
+                priority: 2,
             },
         ]);
 
@@ -38,11 +35,10 @@ describe('Provider Priority', () => {
             prompt: 'hello',
         });
 
-        expect(result).toBe('openai');
+        expect(result).toBe('gemini');
 
-        expect(highExecute).toHaveBeenCalledTimes(1);
-
-        expect(lowExecute).not.toHaveBeenCalled();
+        expect(geminiExecute).toHaveBeenCalledTimes(1);
+        expect(openaiExecute).not.toHaveBeenCalled();
 
     });
 

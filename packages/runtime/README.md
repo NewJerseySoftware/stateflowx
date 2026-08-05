@@ -1,20 +1,25 @@
 # @stateflowx/runtime
 
-StateFlowX Runtime is a lightweight orchestration runtime for building AI-powered workflows using pluggable protocols, transports, providers, and services.
+StateFlowX Runtime is a lightweight execution engine for building AI-powered applications using configurable workflows, pluggable providers, services, protocols, and transports.
+
+Applications define workflows. The runtime executes them.
+
+---
 
 ## Features
 
-- JSON-RPC protocol support
+- Configurable workflow execution
+- Dynamic workflow registration
+- Pluggable AI providers
+- Provider priority selection
+- Pluggable service architecture
+- JSON-RPC protocol
 - HTTP transport
 - WebSocket transport
-- Multi-transport runtime architecture
-- Runtime composition
 - Runtime lifecycle management
 - Runtime event streaming
-- Workflow lifecycle events
-- Dynamic workflow registration
-- Pluggable provider architecture
-- Service orchestration
+- Multi-transport runtime architecture
+- Runtime composition
 - Realtime observability foundation
 
 ---
@@ -31,84 +36,128 @@ npm install @stateflowx/runtime
 
 Minimal external runtime host example:
 
-<https://github.com/bws9000/stateflowx-runtime-host-example>
+https://github.com/bws9000/stateflowx-runtime-host-example
 
 This demonstrates:
 
 - External npm package consumption
 - HTTP JSON-RPC hosting
 - WebSocket JSON-RPC hosting
-- Multi-transport runtime configuration
-- Dynamic runtime initialization
-- Runtime lifecycle management
-- Workflow execution
+- Runtime initialization
 - Runtime event streaming
-- Gemini provider integration
+- Provider registration
+- Service registration
+- Workflow execution
 
 ---
 
-## Basic Runtime Host Example
+## Client Configuration
+
+StateFlowX applications configure the runtime using a declarative configuration object.
 
 ```ts
-import 'dotenv/config';
+const config = defineConfig({
 
-import {
-  bootstrapHttpRuntime,
-  RuntimeInitializeApp,
-  GeminiProvider,
-  WebSocketTransport,
-  WebSocketEventDispatcher,
-} from '@stateflowx/runtime';
+  protocol: jsonRpc(),
 
-import { WebSocketServer } from 'ws';
-
-const {
-  runtime,
-} = await bootstrapHttpRuntime({
+  transport: http({
+    url: 'http://localhost:3000/rpc',
+  }),
 
   providers: [
-    {
-      name: 'gemini',
+    openai({ priority: 1 }),
+    gemini({ priority: 2 }),
+    mockProvider({ priority: 3 }),
+  ],
 
-      provider: new GeminiProvider(),
+  services: [
+    {
+      name: 'weather',
+      type: 'http',
+      method: 'GET',
+      url: 'https://api.open-meteo.com/v1/forecast?...',
     },
   ],
 
-  services: [],
+  workflows: [
+    {
+      route: 'weather.execute',
 
-  apps: [
-    new RuntimeInitializeApp(),
+      service: 'weather',
+
+      prompt: `
+        Summarize the supplied weather data.
+      `,
+    },
   ],
 });
-
-const server = new WebSocketServer({
-  port: 3001,
-});
-
-const websocket =
-  new WebSocketTransport(server);
-
-runtime.transports.push(websocket);
-
-runtime.addEventDispatcher(
-  new WebSocketEventDispatcher(server)
-);
-
-console.log(`
-HTTP JSON-RPC:
-http://localhost:3000/rpc
-
-WebSocket JSON-RPC:
-ws://localhost:3001
-`);
 ```
 
+The runtime receives this configuration during initialization and dynamically registers providers, services, and workflows.
+
+---
+
+## Workflow Execution
+
+A workflow describes *what* should execute.
+
+```text
+Client Request
+       │
+       ▼
+weather.execute
+       │
+       ▼
+Service
+       │
+       ▼
+Provider
+       │
+       ▼
+Result
+```
+
+Providers are selected automatically using configured priorities unless a workflow explicitly specifies one.
+
+---
+
+## Provider Priority
+
+Multiple providers may be registered.
+
+```ts
+providers: [
+  openai({ priority: 1 }),
+  gemini({ priority: 2 }),
+  mockProvider({ priority: 3 }),
+]
+```
+
+If a workflow does not specify a provider, the runtime automatically selects the highest-priority provider.
+
+A workflow may also explicitly target a provider.
+
+```ts
+workflows: [
+  {
+    route: 'weather.execute',
+
+    service: 'weather',
+
+    provider: 'gemini',
+
+    prompt: '...'
+  }
+]
+```
 
 ---
 
 ## Runtime Event Flow
 
 ```text
+runtime.initialize
+        │
 workflow.started
         │
 service.execute
@@ -117,8 +166,10 @@ provider.generate
         │
 workflow.completed
         │
-WebSocket runtime event stream
+Runtime event stream
 ```
+
+Runtime events can be consumed over WebSocket for realtime observability.
 
 ---
 
@@ -126,33 +177,37 @@ WebSocket runtime event stream
 
 StateFlowX Runtime currently supports:
 
-- JSON-RPC protocol
+- JSON-RPC
 - HTTP transport
 - WebSocket transport
-- Realtime runtime events over WebSockets
+- Runtime event streaming over WebSockets
 
 ---
 
 ## Roadmap
 
-- Additional protocol support
-- Runtime observability tooling
+- Configurable workflow actions
+- Conditional execution
+- Parallel execution
+- Loop execution
+- SQLite state store
+- Additional state store implementations
+- Execution persistence
+- Streaming providers
 - Execution tracing
-- Expanded workflow orchestration
-- Provider fallback strategies
-- Service execution events
-- Provider execution events
-- Streaming execution support
+- Runtime observability tooling
 
 ---
 
 ## Related Demos
 
-- React Client Demo  
-  <https://github.com/bws9000/react-stateflowx-demo>
+React Client Demo
 
-- Angular Client Demo  
-  <https://github.com/bws9000/stateflowx-client-demo>
+https://github.com/bws9000/react-stateflowx-demo
+
+Angular Client Demo
+
+https://github.com/bws9000/stateflowx-client-demo
 
 ---
 
