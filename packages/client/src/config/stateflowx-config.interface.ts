@@ -2,7 +2,10 @@ import { ClientProtocol } from '../protocol/json-rpc.factory.js';
 
 import { TransportConfig } from '../transport/transport-config.interface.js';
 
-import { AgentConfig } from '@stateflowx/common';
+import { 
+  AgentConfig,
+  FlowConfig
+ } from '@stateflowx/common';
 
 export interface StateFlowXConfig {
   apiKey?: string;
@@ -40,4 +43,6 @@ export interface StateFlowXConfig {
 
     prompt: string;
   }>;
+
+  flows?: FlowConfig[];
 }
