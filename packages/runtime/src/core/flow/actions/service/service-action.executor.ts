@@ -1,5 +1,6 @@
+import { ServiceAction } from "@stateflowx/common";
 import { RuntimeContext } from "../../../runtime/runtime-context.interface.js";
-import { ServiceAction } from "../service-action.interface.js";
+
 
 
 export class ServiceActionExecutor {

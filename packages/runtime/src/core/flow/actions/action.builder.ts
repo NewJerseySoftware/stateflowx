@@ -1,4 +1,5 @@
-import { FlowAction } from '../flow-action.type.js';
+import { FlowAction } from "@stateflowx/common";
+
 
 export class ActionBuilder {
 

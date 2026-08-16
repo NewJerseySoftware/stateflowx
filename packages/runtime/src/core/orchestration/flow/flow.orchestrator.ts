@@ -1,9 +1,10 @@
 import { RuntimeContext } from '../../runtime/runtime-context.interface.js';
 import { logger } from '../../logger/logger.js';
-import { FlowConfig } from './flow.config.js';
 import { ActionBuilder } from '../../flow/actions/action.builder.js';
 import { ServiceActionExecutor } from '../../flow/actions/service/service-action.executor.js';
 import { ProviderActionExecutor } from '../../flow/actions/provider/provider-action.executor.js';
+
+import { FlowConfig } from '@stateflowx/common';
 
 export class FlowOrchestrator {
 

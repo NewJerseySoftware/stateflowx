@@ -51,7 +51,7 @@
     "@nestjs/platform-express": "^11.1.21",
     "@nestjs/platform-ws": "^11.1.19",
     "@nestjs/websockets": "^11.1.19",
-    "@stateflowx/common": "^1.0.6",
+    "@stateflowx/common": "^1.0.8",
     "class-validator": "^0.15.1",
     "dotenv": "^16.3.1",
     "json-rpc-2.0": "^1.5.1",

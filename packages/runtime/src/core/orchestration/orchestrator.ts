@@ -32,10 +32,17 @@ export class Orchestrator {
 
         if (this.useMock) {
 
-            this.flowOrchestrator.register(mockFlows);
+            this.flowOrchestrator.register(
+                mockFlows
+            );
 
             return;
+        }
 
+        if (config.flows?.length) {
+            this.flowOrchestrator.register(
+                config.flows
+            );
         }
 
         if (config.workflows?.length) {

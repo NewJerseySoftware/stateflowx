@@ -1,4 +1,5 @@
-import { FlowConfig } from '../orchestration/flow/flow.config.js';
+import { FlowConfig } from "@stateflowx/common";
+
 
 export const mockFlows: FlowConfig[] = [
     {

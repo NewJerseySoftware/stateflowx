@@ -1,5 +1,6 @@
+import { ProviderAction } from '@stateflowx/common';
 import { RuntimeContext } from '../../../runtime/runtime-context.interface.js';
-import { ProviderAction } from '../provider-action.interface.js';
+
 
 export class ProviderActionExecutor {
 
