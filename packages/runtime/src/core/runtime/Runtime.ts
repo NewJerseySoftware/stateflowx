@@ -27,8 +27,6 @@ export class Runtime {
 
     private started = false;
 
-    // readonly apiKey;
-
     readonly store?: Store;
 
     readonly transports: Transport[];
@@ -48,8 +46,6 @@ export class Runtime {
     private readonly dispatchers: RuntimeEventDispatcher[] = [];
 
     constructor(options: RuntimeOptions) {
-
-        //this.apiKey = options.apiKey;
 
         this.store =
             options.store === false

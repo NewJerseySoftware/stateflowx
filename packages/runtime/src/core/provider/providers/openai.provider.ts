@@ -11,7 +11,7 @@ export class OpenAIProvider implements AgentProvider {
     request: ProviderExecutionRequest
   ): Promise<string> {
 
-    console.log('OpenAI prompt:', request.prompt);
+    //console.log('OpenAI prompt:', request.prompt);
 
     const client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
@@ -24,7 +24,7 @@ export class OpenAIProvider implements AgentProvider {
 
     const text = response.output_text;
 
-    console.log('OpenAI response:', text);
+    //console.log('OpenAI response:', text);
 
     return text;
   }

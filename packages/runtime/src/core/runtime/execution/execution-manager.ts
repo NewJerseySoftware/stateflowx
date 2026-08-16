@@ -25,7 +25,7 @@ export class ExecutionManager {
 
 
   start(
-    type: 'workflow' | 'service' | 'provider',
+    type: 'flow' | 'workflow' | 'service' | 'provider',
 
     name: string,
 

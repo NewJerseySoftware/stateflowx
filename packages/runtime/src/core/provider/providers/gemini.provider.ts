@@ -13,7 +13,7 @@ export class GeminiProvider implements AgentProvider {
 
     try {
 
-      console.log('Gemini prompt:', request.prompt);
+      //console.log('Gemini prompt:', request.prompt);
 
       const genAI = new GoogleGenerativeAI(
         process.env.GEMINI_API_KEY!
@@ -28,7 +28,7 @@ export class GeminiProvider implements AgentProvider {
 
       const text = result.response.text();
 
-      console.log('Gemini response:', text);
+      //console.log('Gemini response:', text);
 
       return text;
 

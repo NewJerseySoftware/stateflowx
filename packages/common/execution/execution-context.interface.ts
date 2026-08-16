@@ -3,7 +3,7 @@ export interface ExecutionContext {
 
   parentId?: string;
 
-  type: 'workflow' | 'service' | 'provider';
+  type: 'flow' | 'workflow' | 'service' | 'provider';
 
   name: string;
 

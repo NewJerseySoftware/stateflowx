@@ -8,12 +8,17 @@ import { createHttpService } from '../service/providers/http.service.js';
 
 import { RuntimeInitializationConfig } from './runtime-initialization-config.interface.js';
 
+import { Orchestrator } from '../orchestration/orchestrator.js';
+
 export class RuntimeInitializeApp implements RuntimeApp {
+
   register(runtime: RuntimeContext) {
+
     runtime.prompt(
       'runtime.precheck',
 
       async (payload: unknown) => {
+
         if (typeof payload !== 'object' || payload === null) {
           throw new Error('Invalid runtime config payload');
         }
@@ -21,10 +26,9 @@ export class RuntimeInitializeApp implements RuntimeApp {
         const config = payload as RuntimeInitializationConfig;
 
         const providerName = config.providers[0]?.type;
-        const apiKey = config.apiKey ?? runtime.apiKey;
 
-
-
+        const apiKey =
+          config.apiKey ?? runtime.apiKey;
 
         if (runtime.providers.precheck) {
           await runtime.providers.precheck(
@@ -38,10 +42,12 @@ export class RuntimeInitializeApp implements RuntimeApp {
         };
       }
     );
+
     runtime.prompt(
       'runtime.initialize',
 
       async (payload: unknown) => {
+
         logger.info('runtime.initialize invoked');
 
         if (typeof payload !== 'object' || payload === null) {
@@ -88,30 +94,27 @@ export class RuntimeInitializeApp implements RuntimeApp {
           'API key received from client'
         );
 
-
         //
         // CONFIGURE PROVIDERS
         //
-        config.providers?.forEach(provider => {
+        config.providers?.forEach((provider) => {
+
           runtime.providers.setPriority(
             provider.name,
             provider.priority
           );
-          // console.log('CONFIG PROVIDERS:', config.providers);
 
-          // config.providers?.forEach(provider => {
-          //   console.log('PROVIDER OBJECT:', provider);
-          // });
         });
-
-
 
         //
         // REGISTER SERVICES
         //
         config.services?.forEach((serviceConfig) => {
+
           if (serviceConfig.type === 'http') {
-            const service = createHttpService(serviceConfig);
+
+            const service =
+              createHttpService(serviceConfig);
 
             runtime.services.register(service);
 
@@ -121,179 +124,22 @@ export class RuntimeInitializeApp implements RuntimeApp {
               },
               'Service registered'
             );
+
           }
         });
 
         //
         // REGISTER WORKFLOWS
         //
-        config.workflows?.forEach((workflow) => {
-          runtime.prompt(
-            workflow.route,
+        const orchestrator =
+          new Orchestrator(runtime);
 
-            async () => {
-              const workflowExecutionId = runtime.execution.start(
-                'workflow',
-                workflow.route
-              );
-
-              runtime.events.emit({
-                type: 'workflow.started',
-
-                metadata: {
-                  workflow: workflow.route,
-                  executionId: workflowExecutionId,
-                },
-              });
-
-              try {
-                console.log('[REGISTERED SERVICES]', runtime.services.list());
-
-                const service = runtime.services.get(workflow.service);
-
-                if (!service) {
-                  throw new Error(`Service not found: ${workflow.service}`);
-                }
-
-                const serviceExecutionId = runtime.execution.start(
-                  'service',
-                  workflow.service,
-                  workflowExecutionId
-                );
-
-                runtime.events.emit({
-                  type: 'service.started',
-
-                  metadata: {
-                    service: workflow.service,
-                    executionId: serviceExecutionId,
-                    parentId: workflowExecutionId,
-                  },
-                });
-
-                const data = await service.execute();
-
-                runtime.execution.complete(serviceExecutionId);
-
-                runtime.events.emit({
-                  type: 'service.completed',
-
-                  metadata: {
-                    service: workflow.service,
-                    executionId: serviceExecutionId,
-                    parentId: workflowExecutionId,
-                  },
-                });
-
-                const enhancedPrompt = `
-                  ${workflow.prompt}
-
-                  DATA:
-                  ${JSON.stringify(data)}
-                `;
-
-                const providerExecutionId = runtime.execution.start(
-                  'provider',
-                  workflow.provider ?? 'default',
-                  workflowExecutionId
-                );
-
-                runtime.events.emit({
-                  type: 'provider.started',
-
-                  metadata: {
-                    provider: workflow.provider,
-                    executionId: providerExecutionId,
-                    parentId: workflowExecutionId,
-                  },
-                });
-
-                const apiKey = config.apiKey ?? runtime.apiKey;
-
-                const result = await runtime.providers.execute(
-                  workflow.provider,
-                  {
-                    prompt: enhancedPrompt,
-                    data,
-                    apiKey,
-                  }
-                );
-
-                // COMPLETE PROVIDER
-                runtime.execution.complete(providerExecutionId);
-
-                runtime.events.emit({
-                  type: 'provider.completed',
-                  metadata: {
-                    provider: workflow.provider,
-                    executionId: providerExecutionId,
-                    parentId: workflowExecutionId,
-                  },
-                });
-
-                // COMPLETE WORKFLOW
-                runtime.execution.complete(workflowExecutionId);
-
-                runtime.events.emit({
-                  type: 'workflow.completed',
-                  metadata: {
-                    workflow: workflow.route,
-                    executionId: workflowExecutionId,
-                  },
-                });
-
-                runtime.execution.complete(providerExecutionId);
-
-                runtime.events.emit({
-                  type: 'provider.completed',
-
-                  metadata: {
-                    provider: workflow.provider,
-                    executionId: providerExecutionId,
-                    parentId: workflowExecutionId,
-                  },
-                });
-
-                runtime.execution.complete(workflowExecutionId);
-
-                runtime.events.emit({
-                  type: 'workflow.completed',
-
-                  metadata: {
-                    workflow: workflow.route,
-                    executionId: workflowExecutionId,
-                  },
-                });
-
-                return result;
-              } catch (err) {
-                runtime.execution.fail(workflowExecutionId);
-
-                runtime.events.emit({
-                  type: 'workflow.failed',
-
-                  metadata: {
-                    workflow: workflow.route,
-                    executionId: workflowExecutionId,
-                  },
-
-                  payload: {
-                    error: String(err),
-                  },
-                });
-
-                throw err;
-              }
-            }
-          );
-
-          logger.info(
-            {
-              route: workflow.route,
-            },
-            'Workflow registered'
-          );
-        });
+        orchestrator.register(
+          {
+            workflows: config.workflows ?? [],
+          },
+          config.apiKey
+        );
 
         return {
           success: true,
