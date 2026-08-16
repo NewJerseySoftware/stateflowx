@@ -1,6 +1,7 @@
 import { logger } from '../logger/logger.js';
 
 import { RegisteredAgentProvider } from './agent-provider-registration.interface.js';
+import { retry } from './policies/retry.policy.js';
 
 import { ProviderExecutionRequest } from './provider-execution-request.interface.js';
 
@@ -63,17 +64,12 @@ export class ProviderManager {
         (a.priority ?? Number.MAX_SAFE_INTEGER) -
         (b.priority ?? Number.MAX_SAFE_INTEGER)
       );
-    // .sort((a, b) =>
-    //   (b.priority ?? Number.NEGATIVE_INFINITY) -
-    //   (a.priority ?? Number.NEGATIVE_INFINITY)
-    // );
   }
 
   private resolveProvider(providerName?: string): string {
 
     //workflow explicit provider
     if (providerName && providerName !== 'default') {
-
       return providerName;
     }
 
@@ -129,7 +125,12 @@ export class ProviderManager {
     request: ProviderExecutionRequest
   ): Promise<string> {
 
-    return provider.provider.execute(request);
+    //return provider.provider.execute(request);
+    return retry(
+      () => provider.provider.execute(request),
+      provider.retry.attempts,
+      provider.retry.delay
+    );
   }
 
   async execute(
