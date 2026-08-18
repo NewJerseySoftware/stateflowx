@@ -8,9 +8,9 @@ import { ProviderManager } from "../provider/provider.manager.js";
 
 import { ServiceManager } from "../service/service.manager.js";
 
-import { InMemoryStore } from "../store/in-memory.db.js";
+import { InMemoryStore } from "../store/in-memory.store.js";
 
-import { Store } from "../store/in-memory.store.js";
+import { Store } from "../store/store-interface.js";
 
 import { Transport } from "../transport/transport.interface.js";
 

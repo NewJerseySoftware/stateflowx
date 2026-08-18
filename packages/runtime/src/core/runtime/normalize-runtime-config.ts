@@ -1,4 +1,4 @@
-import { InMemoryStore } from '../store/in-memory.db.js';
+import { InMemoryStore } from '../store/in-memory.store.js';
 
 import { CreateRuntimeConfig } from './create-runtime-config.interface.js';
 
@@ -9,12 +9,7 @@ export function normalizeRuntimeConfig(
   config: CreateRuntimeConfig
 ): RuntimeOptions {
   return {
-    // apiKey:
-    //   config?.apiKey ??
-    //   process.env.OPENAI_API_KEY ??
-    //   process.env.GEMINI_API_KEY ??
-    //   process.env.GOOGLE_ADK_API_KEY ??
-    //   '',
+
     store: config.store ?? new InMemoryStore(),
 
     transports: config.transports,

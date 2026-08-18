@@ -1,4 +1,3 @@
-import { InMemoryStore } from "../store/in-memory.db.js";
 import { RuntimeContext } from "./runtime-context.interface.js";
 
 import { Runtime } from "./Runtime.js";
@@ -8,8 +7,6 @@ export function createRuntimeContext(
 ): RuntimeContext {
 
     return {
-
-        //apiKey: runtime.apiKey,
 
         store: runtime.store,
 

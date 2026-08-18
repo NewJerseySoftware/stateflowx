@@ -1,12 +1,40 @@
-export interface Store {
+import { Store } from "./store-interface.js";
 
-  get<T = unknown>(key: string): T | undefined;
 
-  set<T = unknown>(key: string, value: T): void;
+export class InMemoryStore implements Store {
+  readonly type = 'memory' as const;
 
-  has(key: string): boolean;
+  private readonly store =
+    new Map<string, unknown>();
 
-  delete(key: string): void;
+  async get<T = unknown>(
+    key: string
+  ): Promise<T | undefined> {
+    return this.store.get(key) as
+      | T
+      | undefined;
+  }
 
-  clear(): void;
+  async set<T = unknown>(
+    key: string,
+    value: T
+  ): Promise<void> {
+    this.store.set(key, value);
+  }
+
+  async has(
+    key: string
+  ): Promise<boolean> {
+    return this.store.has(key);
+  }
+
+  async delete(
+    key: string
+  ): Promise<void> {
+    this.store.delete(key);
+  }
+
+  async clear(): Promise<void> {
+    this.store.clear();
+  }
 }

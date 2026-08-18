@@ -1,7 +1,22 @@
-import { Action } from './action.interface.js';
+import {
+  Action,
+} from './action.interface.js';
 
-export interface StoreAction extends Action {
+export type StoreType =
+  | 'memory'
+  | 'mysql';
+
+export interface StoreAction
+  extends Action {
   type: 'store';
-  operation: 'get' | 'set' | 'delete' | 'clear';
+
+  store?: StoreType;
+
+  operation:
+  | 'get'
+  | 'set'
+  | 'delete'
+  | 'clear';
+
   key?: string;
 }

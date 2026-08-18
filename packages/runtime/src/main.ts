@@ -29,6 +29,8 @@ import { RuntimeModule } from './core/transport/Runtime.module.js';
 
 import { OpenAIProvider } from './core/provider/providers/openai.provider.js';
 
+import { StoreFactory } from './core/store/store.factory.js';
+
 async function bootstrap() {
 
   const app = await NestFactory.create(RuntimeModule, {
@@ -57,11 +59,60 @@ async function bootstrap() {
 
   const protocol = new JsonRpcProtocol();
 
+
+
+
+
+  const mysqlPassword =
+    process.env.MYSQL_PASSWORD;
+
+  if (!mysqlPassword) {
+    throw new Error(
+      'MYSQL_PASSWORD is required'
+    );
+  }
+
+  // if not using in-memory
+  const store =
+    await StoreFactory.create({
+      type: 'mysql',
+
+      host:
+        process.env.MYSQL_HOST ??
+        'localhost',
+
+      port: Number(
+        process.env.MYSQL_PORT ??
+        3306
+      ),
+
+      database:
+        process.env.MYSQL_DATABASE ??
+        'stateflowx',
+
+      user:
+        process.env.MYSQL_USER ??
+        'root',
+
+      password: process.env.MYSQL_PASSWORD ??
+        'root',
+
+      table:
+        process.env.MYSQL_TABLE ??
+        'stateflowx_store',
+    });
+
+
+
+
+
   const runtime = createRuntime({
 
     transports,
 
     protocol,
+
+    store,
 
     agents: [
       {

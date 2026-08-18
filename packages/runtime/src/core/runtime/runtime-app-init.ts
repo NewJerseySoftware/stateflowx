@@ -10,6 +10,8 @@ import { RuntimeInitializationConfig } from './runtime-initialization-config.int
 
 import { Orchestrator } from '../orchestration/orchestrator.js';
 
+import { FlowConfig } from '@stateflowx/common';
+
 export class RuntimeInitializeApp implements RuntimeApp {
 
   register(runtime: RuntimeContext) {
@@ -76,6 +78,8 @@ export class RuntimeInitializeApp implements RuntimeApp {
             body?: unknown;
           }>;
 
+          flows?: FlowConfig[];
+
           workflows?: Array<{
             route: string;
 
@@ -136,6 +140,7 @@ export class RuntimeInitializeApp implements RuntimeApp {
 
         orchestrator.register(
           {
+            flows: config.flows ?? [],
             workflows: config.workflows ?? [],
           },
           config.apiKey

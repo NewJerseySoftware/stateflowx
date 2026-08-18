@@ -1,42 +1,40 @@
-import { RuntimeContext, RuntimeApp } from '../../runtime/index.js';
+import {
+  RuntimeContext,
+  RuntimeApp,
+} from '../../runtime/index.js';
 
 export class PingPongApp implements RuntimeApp {
-
   register(runtime: RuntimeContext): void {
-
-    runtime.store?.set('counter', 0);
-
     runtime.prompt('ping', async () => {
+      const counter =
+        await runtime.store?.get<number>(
+          'counter'
+        ) ?? 0;
 
       return {
         message: 'pong',
-
-        counter: runtime.store?.get<number>('counter') ?? 0,
-
+        counter,
         time: Date.now(),
       };
-
     });
 
     runtime.prompt('increment', async () => {
-
       const currentCounter =
-        runtime.store?.get<number>('counter') ?? 0;
+        await runtime.store?.get<number>(
+          'counter'
+        ) ?? 0;
 
-      runtime.store?.set(
+      const nextCounter =
+        currentCounter + 1;
+
+      await runtime.store?.set(
         'counter',
-        currentCounter + 1
+        nextCounter
       );
 
       return {
-
-        counter:
-          runtime.store?.get<number>('counter') ?? 0,
-
+        counter: nextCounter,
       };
-
     });
-
   }
-
 }

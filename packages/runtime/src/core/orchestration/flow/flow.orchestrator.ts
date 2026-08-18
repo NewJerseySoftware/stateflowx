@@ -1,10 +1,16 @@
 import { RuntimeContext } from '../../runtime/runtime-context.interface.js';
+
 import { logger } from '../../logger/logger.js';
+
 import { ActionBuilder } from '../../flow/actions/action.builder.js';
+
 import { ServiceActionExecutor } from '../../flow/actions/service/service-action.executor.js';
+
 import { ProviderActionExecutor } from '../../flow/actions/provider/provider-action.executor.js';
 
 import { FlowConfig } from '@stateflowx/common';
+
+import { StoreActionExecutor } from '../../flow/actions/store/store-actions.executor.js';
 
 export class FlowOrchestrator {
 
@@ -14,6 +20,8 @@ export class FlowOrchestrator {
 
     private readonly providerActionExecutor: ProviderActionExecutor;
 
+    private readonly storeActionExecutor: StoreActionExecutor;
+
     constructor(
         private readonly runtime: RuntimeContext
     ) {
@@ -22,6 +30,9 @@ export class FlowOrchestrator {
 
         this.providerActionExecutor =
             new ProviderActionExecutor(runtime);
+
+        this.storeActionExecutor =
+            new StoreActionExecutor(runtime);
     }
 
     register(
@@ -57,11 +68,21 @@ export class FlowOrchestrator {
                             );
                         }
 
+
+                        if (action.type === 'store') {
+                            result =
+                                await this.storeActionExecutor.execute(
+                                    action,
+                                    results
+                                );
+                        }
+
                         if (action.type === 'service') {
 
                             result =
                                 await this.serviceActionExecutor.execute(
-                                    action
+                                    action,
+                                    results
                                 );
                         }
 

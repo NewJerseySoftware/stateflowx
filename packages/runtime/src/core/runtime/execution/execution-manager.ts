@@ -3,8 +3,9 @@ import { randomUUID } from 'crypto';
 import { ExecutionEventBus } from './execution-event-bus.js';
 
 import { ExecutionContext } from '@stateflowx/common';
+import { Store } from '../../store/store-interface.js';
 
-import { Store } from '../../store/in-memory.store.js';
+//import { Store } from '../../store/in-memory.store.js';
 
 export class ExecutionManager {
 

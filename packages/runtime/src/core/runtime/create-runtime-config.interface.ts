@@ -8,7 +8,9 @@ import { Protocol } from '../protocol/protocol.interface.js';
 
 import { AgentConfig } from '@stateflowx/common';
 
-import { InMemoryStore } from '../store/in-memory.db.js';
+import { Store } from '../store/store-interface.js';
+
+
 
 export interface CreateRuntimeConfig {
   apiKey?: string;
@@ -35,5 +37,5 @@ export interface CreateRuntimeConfig {
     };
   };
 
-  store?: InMemoryStore;
+  store?: Store | false;
 }

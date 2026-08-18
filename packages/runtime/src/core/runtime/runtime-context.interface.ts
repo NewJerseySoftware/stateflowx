@@ -10,7 +10,9 @@ import { ExecutionManager } from './execution/execution-manager.js';
 
 import { AgentManager } from '../agent/agent-manager.js';
 
-import { Store } from '../store/in-memory.store.js';
+import { Store } from '../store/store-interface.js';
+
+//import { Store } from '../store/in-memory.store.js';
 
 export type PromptHandler = (payload: unknown) => Promise<unknown> | unknown;
 

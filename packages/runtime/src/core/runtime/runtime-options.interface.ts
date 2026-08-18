@@ -10,11 +10,10 @@ import { ServiceConfig } from '../service/service-config.interface.js';
 
 import { Transport } from '../transport/transport.interface.js';
 
-import { Store } from '../store/in-memory.store.js';
+import { Store } from '../store/store-interface.js';
 
 
 export interface RuntimeOptions {
-  // apiKey: string;
 
   transports: Transport[];
 
@@ -42,5 +41,4 @@ export interface RuntimeOptions {
 
   store?: Store | false;
 
-  //flow?: unknown;
 }
