@@ -27,3 +27,9 @@ export * from './http/bootstrap-http-runtime.js';
 export * from './core/events/dispatchers/ws/websocket-event-dispatcher.js';
 
 export * from './core/events/runtime-event.js';
+
+export * from './core/store/store-interface.js';
+export * from './core/store/store-config.interface.js';
+export * from './core/store/store.factory.js';
+export * from './core/store/in-memory.store.js';
+export * from './core/store/mysql.store.js';
