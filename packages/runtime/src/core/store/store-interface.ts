@@ -9,6 +9,11 @@ export interface Store {
     key: string
   ): Promise<T | undefined>;
 
+  insert<T = unknown>(
+    key: string,
+    value: T
+  ): Promise<void>;
+
   set<T = unknown>(
     key: string,
     value: T
