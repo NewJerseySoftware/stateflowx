@@ -4,6 +4,10 @@ module.exports = {
 
   testRegex: '.*\\.spec\\.ts$',
 
+  testPathIgnorePatterns: [
+    '\\.integration\\.spec\\.ts$',
+  ],
+
   moduleFileExtensions: [
     'ts',
     'js',

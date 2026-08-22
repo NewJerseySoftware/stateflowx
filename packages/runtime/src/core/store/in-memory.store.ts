@@ -37,4 +37,27 @@ export class InMemoryStore implements Store {
   async clear(): Promise<void> {
     this.store.clear();
   }
+
+
+  async insert<T = unknown>(
+    key: string,
+    value: T
+  ): Promise<void> {
+    const existing = this.store.get(key);
+
+    if (existing === undefined) {
+      this.store.set(key, [value]);
+      return;
+    }
+
+    if (Array.isArray(existing)) {
+      existing.push(value);
+      return;
+    }
+
+    this.store.set(
+      key,
+      [existing, value]
+    );
+  }
 }

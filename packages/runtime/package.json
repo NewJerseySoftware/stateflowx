@@ -41,7 +41,8 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "test:integration": "jest --config jest.integration.config.cjs"
   },
   "dependencies": {
     "@google/adk": "^1.2.0",

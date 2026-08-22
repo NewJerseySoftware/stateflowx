@@ -162,4 +162,41 @@ export class MySqlStore implements Store {
             );
         }
     }
+
+
+    async insert<T = unknown>(
+        key: string,
+        value: T
+    ): Promise<void> {
+        const existing =
+            await this.get<unknown>(key);
+
+        if (existing === undefined) {
+            await this.set(
+                key,
+                [value]
+            );
+
+            return;
+        }
+
+        if (Array.isArray(existing)) {
+            existing.push(value);
+
+            await this.set(
+                key,
+                existing
+            );
+
+            return;
+        }
+
+        await this.set(
+            key,
+            [
+                existing,
+                value,
+            ]
+        );
+    }
 }
