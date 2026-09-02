@@ -1,25 +1,21 @@
-import {
-  Action,
-} from './action.interface.js';
+import { Action } from "@stateflowx/common";
+
 
 export type StoreType =
   | 'memory'
-  | 'mysql'
-  | 'mongodb';
+  | 'mysql';
 
 export interface StoreAction
   extends Action {
-
   type: 'store';
 
-  store?: StoreType;
+  store: StoreType;
 
   operation:
     | 'get'
     | 'set'
     | 'delete'
-    | 'clear'
-    | 'insert';
+    | 'clear';
 
   key?: string;
 }
