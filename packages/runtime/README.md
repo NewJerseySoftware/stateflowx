@@ -1,35 +1,31 @@
 # @stateflowx/runtime
 
-StateFlowX Runtime is a lightweight execution engine for building AI-powered applications using configurable flows, pluggable providers, services, state stores, protocols, and transports.
+StateFlowX Runtime is a lightweight execution engine for building AI-powered applications with configurable flows, pluggable providers and services, state storage, protocols, and transports.
 
-Applications define flows composed of connected actions. The runtime executes them.
+Applications describe what should happen as a flow of connected actions. The runtime handles execution.
 
----
+# Storage: In-memory by default
+
+**No database setup is required. MySQL persistence is available. PostgreSQL and additional store implementations are coming soon.**
 
 ## Features
 
 - Declarative flow configuration
 - Dynamic flow registration
 - Connector-based action composition
-- Service actions
-- AI provider actions
-- Persistent store actions
-- Pluggable AI providers
-- Provider priority selection
+- Service, provider, and store actions
+- Pluggable AI providers with priority selection
 - Pluggable service architecture
-- Abstract asynchronous state store
-- In-memory state storage
-- MySQL state persistence
+- In-memory state storage by default
+- Optional MySQL state persistence
+- Database-independent store contract
 - JSON-RPC protocol
-- HTTP transport
-- WebSocket transport
+- HTTP and WebSocket transports
 - Runtime lifecycle management
 - Runtime event streaming
 - Multi-transport runtime architecture
 - Realtime observability foundation
 - Legacy workflow compatibility
-
----
 
 ## Installation
 
@@ -37,13 +33,13 @@ Applications define flows composed of connected actions. The runtime executes th
 npm install @stateflowx/runtime
 ```
 
----
+StateFlowX uses an in-memory store by default. Install the runtime and start executing flows without configuring a database.
 
 ## Runtime Host Example
 
 Minimal external runtime host example:
 
-https://github.com/bws9000/stateflowx-runtime-host-example
+<https://github.com/bws9000/stateflowx-runtime-host-example>
 
 This demonstrates:
 
@@ -56,71 +52,38 @@ This demonstrates:
 - Service registration
 - Flow execution
 
----
-
 ## Configurable Flows
 
 A flow is composed of actions connected through outputs.
 
 ```ts
-import {
-  FlowConfig,
-} from '@stateflowx/common';
+import { FlowConfig } from '@stateflowx/common';
 
 const flows: FlowConfig[] = [
   {
     name: 'Weather Analysis',
-
     route: 'weather.execute',
-
     actions: [
       {
         id: 'weather-service',
-
         type: 'service',
-
         service: 'weather',
-
         outputConnectors: [
           {
-            actionId:
-              'weather-provider',
+            actionId: 'weather-provider',
           },
         ],
       },
       {
         id: 'weather-provider',
-
         type: 'provider',
-
         provider: 'gemini',
-
         prompt: `
           Analyze the supplied weather data.
 
           Weather data:
-
           {{weather-service}}
         `,
-
-        outputConnectors: [
-          {
-            actionId:
-              'weather-store',
-          },
-        ],
-      },
-      {
-        id: 'weather-store',
-
-        type: 'store',
-
-        store: 'mysql',
-
-        operation: 'set',
-
-        key: 'weather:last-result',
-
         output: true,
       },
     ],
@@ -135,14 +98,10 @@ Weather service
       ↓
 Gemini provider
       ↓
-MySQL store
-      ↓
 Flow result
 ```
 
 Action results are passed through connectors. An action can consume the results of earlier connected actions and expose its result to later actions.
-
----
 
 ## Action Composition
 
@@ -152,29 +111,23 @@ StateFlowX currently supports three configurable action types:
 - `provider`
 - `store`
 
-Actions may be composed in different orders:
+Actions can be composed in different orders:
 
 ```text
+Service → Provider
 Service → Provider → Store
 Store → Service → Provider
 Provider → Store → Service
-Service → Store → Provider → Service
 ```
 
-A service action can consume connected results:
+A service action can consume a stored result:
 
 ```ts
 {
   id: 'stored-result',
-
   type: 'store',
-
-  store: 'mysql',
-
   operation: 'get',
-
   key: 'weather:last-result',
-
   outputConnectors: [
     {
       actionId: 'notification-service',
@@ -183,11 +136,8 @@ A service action can consume connected results:
 },
 {
   id: 'notification-service',
-
   type: 'service',
-
   service: 'notification',
-
   output: true,
 }
 ```
@@ -196,11 +146,11 @@ For a single input connector, the connected result is passed directly to the ser
 
 For multiple input connectors, the service receives an object keyed by source action ID.
 
----
-
 ## Store Actions
 
 Store actions provide database-independent state access.
+
+The runtime uses in-memory storage by default. Flow definitions do not need to identify or configure the underlying storage implementation.
 
 Supported operations:
 
@@ -216,14 +166,9 @@ Example:
 ```ts
 {
   id: 'save-result',
-
   type: 'store',
-
-  store: 'mysql',
-
   operation: 'set',
-
-  key: 'analysis:last-result'
+  key: 'analysis:last-result',
 }
 ```
 
@@ -234,88 +179,42 @@ Runtime components interact only with the abstract store contract:
 ```ts
 await runtime.store?.set(
   'analysis:last-result',
-  result
+  result,
 );
 
-const storedResult =
-  await runtime.store?.get(
-    'analysis:last-result'
-  );
+const storedResult = await runtime.store?.get(
+  'analysis:last-result',
+);
 ```
 
 Flows do not contain database credentials or database-specific query logic.
 
----
+## In-Memory Storage
 
-## State Store Configuration
-
-StateFlowX uses an in-memory store by default.
-
-A runtime host can create a persistent MySQL store:
+No store configuration is required to use the default in-memory implementation:
 
 ```ts
-import {
-  StoreFactory,
-  createRuntime,
-} from '@stateflowx/runtime';
-
-const store =
-  await StoreFactory.create({
-    type: 'mysql',
-
-    host:
-      process.env.MYSQL_HOST ??
-      'localhost',
-
-    port: Number(
-      process.env.MYSQL_PORT ??
-      3306
-    ),
-
-    database:
-      process.env.MYSQL_DATABASE ??
-      'stateflowx',
-
-    user:
-      process.env.MYSQL_USER ??
-      'root',
-
-    password:
-      process.env.MYSQL_PASSWORD ??
-      '',
-
-    table:
-      process.env.MYSQL_TABLE ??
-      'stateflowx_store',
-  });
-
 const runtime = createRuntime({
   transports,
-
   protocol,
-
   providers,
-
   services,
-
-  store,
 });
 ```
 
-Example environment:
+The in-memory store is useful for:
 
-```env
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_DATABASE=stateflowx
-MYSQL_USER=root
-MYSQL_PASSWORD=your_password
-MYSQL_TABLE=stateflowx_store
-```
+- Getting started without database setup
+- Local development
+- Examples and demonstrations
+- Automated tests
+- Applications that do not require state to survive a runtime restart
 
-MySQL credentials belong to the runtime host environment and should not be sent from a browser client.
+MySQL persistence is also available when durable state is required. The runtime host owns the storage implementation and its credentials.
 
-To disable runtime storage:
+PostgreSQL and additional store implementations are planned.
+
+To disable runtime storage entirely:
 
 ```ts
 const runtime = createRuntime({
@@ -326,8 +225,6 @@ const runtime = createRuntime({
   store: false,
 });
 ```
-
----
 
 ## Client Configuration
 
@@ -350,70 +247,37 @@ const config = defineConfig({
   services: [
     {
       name: 'weather',
-
       type: 'http',
-
       method: 'GET',
-
-      url:
-        'https://api.open-meteo.com/v1/forecast?..',
+      url: 'https://api.open-meteo.com/v1/forecast?...',
     },
   ],
 
   flows: [
     {
       name: 'Weather Analysis',
-
       route: 'weather.execute',
-
       actions: [
         {
           id: 'weather-service',
-
           type: 'service',
-
           service: 'weather',
-
           outputConnectors: [
             {
-              actionId:
-                'weather-provider',
+              actionId: 'weather-provider',
             },
           ],
         },
         {
           id: 'weather-provider',
-
           type: 'provider',
-
           provider: 'gemini',
-
           prompt: `
             Return only valid JSON.
 
             Analyze the supplied weather data:
-
             {{weather-service}}
           `,
-
-          outputConnectors: [
-            {
-              actionId:
-                'weather-store',
-            },
-          ],
-        },
-        {
-          id: 'weather-store',
-
-          type: 'store',
-
-          store: 'mysql',
-
-          operation: 'set',
-
-          key: 'weather:last-result',
-
           output: true,
         },
       ],
@@ -424,11 +288,11 @@ const config = defineConfig({
 
 The runtime receives this configuration during initialization and dynamically registers services and flow routes.
 
----
+Browser clients do not configure database connections or receive database credentials.
 
 ## Provider Priority
 
-Multiple providers may be registered with different priorities.
+Multiple providers can be registered with different priorities.
 
 ```ts
 providers: [
@@ -440,22 +304,16 @@ providers: [
 
 If a provider action does not specify a provider, the runtime selects the highest-priority available provider.
 
-An action may explicitly target a provider:
+An action can also explicitly target a provider:
 
 ```ts
 {
   id: 'weather-provider',
-
   type: 'provider',
-
   provider: 'gemini',
-
-  prompt:
-    'Summarize {{weather-service}}'
+  prompt: 'Summarize {{weather-service}}',
 }
 ```
-
----
 
 ## Legacy Workflows
 
@@ -465,20 +323,14 @@ The earlier service-to-provider workflow configuration remains available for com
 workflows: [
   {
     route: 'weather.execute',
-
     service: 'weather',
-
     provider: 'gemini',
-
-    prompt:
-      'Summarize the weather data.'
-  }
+    prompt: 'Summarize the weather data.',
+  },
 ]
 ```
 
 New applications should prefer configurable `flows` and `actions`.
-
----
 
 ## Runtime Event Flow
 
@@ -493,12 +345,10 @@ service / provider / store
         │
 flow.completed
         │
-Runtime event stream
+runtime event stream
 ```
 
 Runtime events can be consumed over WebSocket for realtime observability.
-
----
 
 ## Current Transport Support
 
@@ -509,14 +359,13 @@ StateFlowX Runtime currently supports:
 - WebSocket transport
 - Runtime event streaming over WebSockets
 
----
-
 ## Roadmap
 
 - Conditional execution
 - Parallel execution
 - Loop execution
 - Retry and fallback configuration
+- PostgreSQL store implementation
 - Additional state store implementations
 - Execution persistence and recovery
 - Streaming providers
@@ -524,23 +373,11 @@ StateFlowX Runtime currently supports:
 - Execution tracing
 - Runtime observability tooling
 
----
-
 ## Related Demos
 
-React Client Demo:
-
-<https://github.com/bws9000/react-stateflowx-demo>
-
-Angular Client Demo:
-
-<https://github.com/bws9000/stateflowx-client-demo>
-
-Runtime Host Example:
-
-<https://github.com/bws9000/stateflowx-runtime-host-example>
-
----
+- React Client Demo: <https://github.com/bws9000/react-stateflowx-demo>
+- Angular Client Demo: <https://github.com/bws9000/stateflowx-client-demo>
+- Runtime Host Example: <https://github.com/bws9000/stateflowx-runtime-host-example>
 
 ## Current Status
 
