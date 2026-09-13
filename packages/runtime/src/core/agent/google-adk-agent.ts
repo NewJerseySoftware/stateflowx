@@ -1,33 +1,21 @@
-import { LlmAgent, InMemoryRunner, Gemini, AgentRegistry } from '@google/adk';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import {
+  LlmAgent,
+  InMemoryRunner,
+  Gemini,
+} from '@google/adk';
 
 import { Agent } from '@stateflowx/common';
 
-//
-// Hackathon Note:
-//
-// ADK successfully invokes MCP tools,
-// however subsequent model continuation
-// occasionally fails with:
-//
-// "function call turn comes immediately..."
-//
-// When this occurs we log the MCP result
-// and fall back to a direct Gemini call
-// so the StateFlowX workflow can continue.
-//
-
 export class GoogleADKAgent implements Agent {
+
   constructor(
     public readonly name: string,
     public readonly priority?: number
-  ) {}
+  ) { }
 
-  async execute(payload?: unknown): Promise<unknown> {
-    //
-    // StateFlowX payload
-    //
-    //console.log('[ADK PAYLOAD]', payload);
+  async execute(
+    payload?: unknown
+  ): Promise<unknown> {
 
     const input = payload as {
       prompt?: string;
@@ -35,48 +23,13 @@ export class GoogleADKAgent implements Agent {
       apiKey?: string;
     };
 
-    console.log('[INPUT PROMPT]', input.prompt);
-
-    //
-    // Agent Registry client
-    //
-    // Used to discover MCP servers registered
-    // in Google Agent Registry.
-    //
-    const registry = new AgentRegistry({
-      projectId: process.env.GOOGLE_AGENT_REGISTRY_PROJECT_ID!,
-      location: process.env.GOOGLE_AGENT_REGISTRY_LOCATION!,
-    });
-
-    //
-    // Verify MCP server registration.
-    //
-    // Useful for debugging and proving
-    // Agent Registry discovery works.
-    //
-    const servers = await registry.listMcpServers();
-
-    console.log('[MCP SERVERS]', JSON.stringify(servers, null, 2));
-
-    console.log('[LOADING MCP TOOLSET]');
-
-    //
-    // Load MCP tools from Agent Registry.
-    //
-    // ADK exposes the remote MCP server as
-    // a toolset which Gemini can invoke.
-    //
-    const mongodbToolset = await registry.getMcpToolset(
-      process.env.GOOGLE_AGENT_REGISTRY_MCP_SERVER!
+    console.log(
+      '[ADK INPUT PROMPT]',
+      input.prompt
     );
 
-    console.log('[MCP TOOLSET]', mongodbToolset);
-
     //
-    // Gemini model.
-    //
-    // API key is supplied at runtime from
-    // the StateFlowX execution payload.
+    // Gemini model used by Google ADK
     //
     const model = new Gemini({
       model: 'gemini-2.5-flash',
@@ -84,184 +37,94 @@ export class GoogleADKAgent implements Agent {
     });
 
     //
-    // Prompt handling.
-    //
-    // The workflow prompt is currently supplied
-    // as both agent instruction and user input.
-    //
-    // May be simplified after ADK integration
-    // stabilizes.
+    // Google ADK agent
     //
     const agent = new LlmAgent({
       name: this.name,
-
       model,
-
       instruction: input?.prompt,
-
-      tools: [mongodbToolset],
     });
 
     //
-    // Ephemeral execution runner
-    //
-    // Creates a temporary ADK session
-    // executes the request, then disposes
-    // of the session automatically.
+    // Ephemeral ADK runner
     //
     const runner = new InMemoryRunner({
       agent,
     });
 
-    //
-    // Track the last successful MCP tool response.
-    //
-    // Used as a fallback when Gemini fails to
-    // continue execution after a valid MCP
-    // function response.
-    //
-    let lastFunctionResponse: any = null;
-
-    //
-    // Debug counter used to inspect the
-    // ADK event stream.
-    //
     let eventCount = 0;
+    let responseText: string | undefined;
 
     //
-    // Event Stream
+    // Execute through Google ADK.
     //
-    // Typical observed sequence :
-    //
-    // Event 1:
-    //   Gemini issues MCP function call
-    //
-    // Event 2:
-    //   MCP function response returned
-    //
-    // Event 3:
-    //   Gemini attempts continuation
-    //
-    // Current observed failure:
-    //
-    //   400
-    //   "Please ensure that function call
-    //    turn comes immediately after a
-    //    user turn or after a function
-    //    response turn."
-    //
-    //
-    // Workaround:
-    //
-    // If we successfully received a valid
-    // MCP function response and then hit
-    // the observed ADK continuation error,
-    // log the MCP result and fall back to
-    // a direct Gemini invocation so the
-    // workflow can still complete.
-    //
-    //
-    for await (const event of runner.runEphemeral({
-      userId: 'stateflowx',
+    for await (
+      const event of runner.runEphemeral({
+        userId: 'stateflowx',
 
-      newMessage: {
-        parts: [
-          {
-            text: input.prompt ?? 'Hello',
-          },
-        ],
-      },
-    })) {
+        newMessage: {
+          parts: [
+            {
+              text:
+                input.prompt ??
+                'Hello',
+            },
+          ],
+        },
+      })
+    ) {
+
       eventCount++;
 
-      console.log(`[ADK EVENT ${eventCount}]`, JSON.stringify(event, null, 2));
-
-      //
-      // Capture MCP function responses.
-      //
-      const functionResponse = event.content?.parts?.find(
-        (part: any) => part.functionResponse
+      console.log(
+        `[ADK EVENT ${eventCount}]`,
+        JSON.stringify(
+          event,
+          null,
+          2
+        )
       );
 
-      if (functionResponse) {
-        lastFunctionResponse = functionResponse.functionResponse;
-
-        console.log(
-          '[MCP FUNCTION RESPONSE]',
-          JSON.stringify(lastFunctionResponse, null, 2)
+      //
+      // Surface ADK/model errors.
+      //
+      if (event.errorCode) {
+        throw new Error(
+          event.errorMessage ??
+          event.errorCode
         );
       }
 
       //
-      // Capture ADK / Gemini errors..
+      // Capture text produced by the model.
       //
-      if (event.errorCode) {
-        console.error('[ADK ERROR]', event.errorCode, event.errorMessage);
-
-        const isKnownContinuationError = event.errorMessage?.includes(
-          'function call turn comes immediately'
+      const textPart =
+        event.content?.parts?.find(
+          (part: any) =>
+            typeof part.text ===
+            'string'
         );
 
-        //
-        // Observed ADK MCP continuation error.
-        //
-        // After a successful MCP tool response,
-        // Gemini sometimes returns ->
-        //
-        // "Please ensure that function call turn
-        // comes immediately after a user turn or
-        // after a function response turn."
-        //
-        // Until root cause is identified we fall
-        // back to a direct Gemini invocation.
-        if (isKnownContinuationError && lastFunctionResponse) {
-          console.error(
-            '[ADK MCP CONTINUATION ERROR]',
-            JSON.stringify(lastFunctionResponse, null, 2)
-          );
-
-          console.warn(
-            '[ADK WORKAROUND]',
-            'Falling back to direct Gemini call'
-          );
-
-          return this.workaround(input.prompt ?? '', input.apiKey);
-        }
-
-        return JSON.stringify({
-          error: event.errorCode,
-          message: event.errorMessage,
-          eventCount,
-        });
+      if (
+        textPart &&
+        event.author !== 'user'
+      ) {
+        responseText =
+          textPart.text;
       }
     }
 
-    //
-    // Runner completed without producing
-    // an error or final text response.
-    //
-    return JSON.stringify({
-      success: false,
-      eventCount,
-      message: 'ADK execution completed without a final response.',
-    });
-  }
+    if (responseText) {
+      console.log(
+        '[ADK RESPONSE]',
+        responseText
+      );
 
-  private async workaround(prompt: string, apiKey?: string): Promise<string> {
-    console.log('[ADK WORKAROUND]', 'Executing direct Gemini request');
+      return responseText;
+    }
 
-    const genAI = new GoogleGenerativeAI(apiKey ?? process.env.GEMINI_API_KEY!);
-
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
-    });
-
-    const result = await model.generateContent(prompt);
-
-    const text = result.response.text();
-
-    console.log('[ADK WORKAROUND RESPONSE]', text);
-
-    return text;
+    throw new Error(
+      `Google ADK completed without a response after ${eventCount} events.`
+    );
   }
 }
