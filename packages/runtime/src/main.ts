@@ -12,7 +12,7 @@ import {
   GeminiProvider,
   RuntimeInitializeApp,
   HttpTransport,
-  MockProvider
+  MockProvider,
 } from './index.js';
 
 import { JsonRpcProtocol } from './core/protocol/json-rpc/json-rpc.protocol.js';
@@ -21,15 +21,16 @@ import { WebSocketTransport } from './core/transport/ws/ws.transport.js';
 
 import { WebSocketEventDispatcher } from './core/events/dispatchers/ws/websocket-event-dispatcher.js';
 
-import { GoogleADKAgent } from './core/agent/google-adk-agent.js';
-
 import { GoogleAdkProvider } from './core/provider/providers/google-adk.provider.js';
 
 import { RuntimeModule } from './core/transport/Runtime.module.js';
 
 import { OpenAIProvider } from './core/provider/providers/openai.provider.js';
 
-import { StoreFactory } from './core/store/store.factory.js';
+import {
+  mysql,
+  memory,
+} from './config/store.config.js';
 
 async function bootstrap() {
 
@@ -46,7 +47,7 @@ async function bootstrap() {
   await app.listen(3000);
 
   //
-  // Websocket transport server
+  // WebSocket transport server
   //
   const server = new WebSocketServer({
     port: 3001,
@@ -55,57 +56,37 @@ async function bootstrap() {
   const transports = [
     app.get(HttpTransport),
     new WebSocketTransport(server),
-  ]
+  ];
 
   const protocol = new JsonRpcProtocol();
 
+  //
+  // Store
+  //
+  const storeType =
+    process.env.STORE_TYPE ??
+    'memory';
 
+  let store;
 
+  if (storeType === 'mysql') {
 
+    store = await mysql();
 
-  const mysqlPassword =
-    process.env.MYSQL_PASSWORD;
+  } else if (storeType === 'memory') {
 
-  if (!mysqlPassword) {
+    store = await memory();
+
+  } else {
+
     throw new Error(
-      'MYSQL_PASSWORD is required'
+      `Unsupported STORE_TYPE: ${storeType}`
     );
   }
 
-  // if not using in-memory
-  const store =
-    await StoreFactory.create({
-      type: 'mysql',
-
-      host:
-        process.env.MYSQL_HOST ??
-        'localhost',
-
-      port: Number(
-        process.env.MYSQL_PORT ??
-        3306
-      ),
-
-      database:
-        process.env.MYSQL_DATABASE ??
-        'stateflowx',
-
-      user:
-        process.env.MYSQL_USER ??
-        'root',
-
-      password: process.env.MYSQL_PASSWORD ??
-        'root',
-
-      table:
-        process.env.MYSQL_TABLE ??
-        'stateflowx_store',
-    });
-
-
-
-
-
+  //
+  // Runtime
+  //
   const runtime = createRuntime({
 
     transports,
@@ -113,13 +94,6 @@ async function bootstrap() {
     protocol,
 
     store,
-
-    agents: [
-      {
-        name: 'weather-agent',
-        agent: new GoogleADKAgent('weather-agent'),
-      },
-    ],
 
     providers: [
       {
@@ -136,9 +110,7 @@ async function bootstrap() {
       },
       {
         name: 'google-adk',
-        provider: new GoogleAdkProvider(
-          new GoogleADKAgent('weather-agent')
-        ),
+        provider: new GoogleAdkProvider(),
       },
     ],
 
@@ -157,8 +129,6 @@ async function bootstrap() {
     },
   });
 
-
-
   //
   // Runtime lifecycle
   //
@@ -168,12 +138,15 @@ async function bootstrap() {
   // 4. Start runtime
   //
   runtime.addEventDispatcher(
-    new WebSocketEventDispatcher(server)
+    new WebSocketEventDispatcher(
+      server
+    )
   );
 
   bootstrapRuntime(
-    [new RuntimeInitializeApp()],
-
+    [
+      new RuntimeInitializeApp(),
+    ],
     runtime
   );
 
@@ -181,7 +154,18 @@ async function bootstrap() {
 
   await runtime.start();
 
-  console.log('StateFlowX runtime listening on ws://localhost:3001');
+  console.log(`
+StateFlowX runtime started
+
+Store
+  ${storeType}
+
+HTTP JSON-RPC
+  http://localhost:3000/rpc
+
+WebSocket JSON-RPC
+  ws://localhost:3001
+`);
 }
 
 bootstrap();
